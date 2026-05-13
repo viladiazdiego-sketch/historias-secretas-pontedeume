@@ -1,0 +1,2983 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Historias Secretas de Pontedeume ✦</title>
+   
+    <!-- Leaflet CSS e JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+   
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+   
+    <!-- Google Fonts más modernas -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Prata&display=swap" rel="stylesheet">
+   
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Eliminar resaltes en móviles y focus */
+/* Solo para ordenador (con teclado) mostramos el borde de enfoque */
+@media (hover: hover) and (pointer: fine) {
+    *:focus-visible {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+}
+
+/* En móvil, solo ocultamos el outline para interacción táctil, no para teclado */
+@media (max-width: 768px) {
+    *:focus:not(:focus-visible) {
+        outline: none;
+    }
+    *:focus-visible {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+}
+
+a, button {
+    -webkit-tap-highlight-color: transparent;
+}
+       
+        body {
+            user-select: none;
+            -webkit-user-select: none;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            font-family: 'Space Grotesk', sans-serif;
+            background: #030614;
+            transition: background-color 0.3s ease;
+        }
+       
+        /* Fondo con textura y degradado dinámico */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    background: radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.15), transparent 60%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15), transparent 60%),
+                repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 10px);
+    background-color: #030614;
+}
+
+.gradient-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, rgba(15, 20, 30, 0.5), rgba(5, 10, 20, 0.7));
+    z-index: 1;
+    pointer-events: none;
+    animation: subtleShift 15s ease-in-out infinite alternate;
+}
+
+@keyframes subtleShift {
+    0% {
+        opacity: 0.7;
+        background: linear-gradient(145deg, rgba(15, 20, 30, 0.5), rgba(5, 10, 20, 0.7));
+    }
+    100% {
+        opacity: 0.9;
+        background: linear-gradient(235deg, rgba(30, 20, 40, 0.5), rgba(10, 15, 25, 0.8));
+    }
+}
+
+.particle-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* MODO CLARO */
+body.light-mode .background {
+    background: radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.08), transparent 60%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.08), transparent 60%),
+                repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 2px, transparent 2px, transparent 10px);
+    background-color: #fefcf5;
+}
+
+body.light-mode .gradient-overlay {
+    background: linear-gradient(145deg, rgba(255, 250, 240, 0.6), rgba(245, 240, 235, 0.8));
+    animation: none;
+}
+       
+        .screen {
+            display: none;
+            padding: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+       
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+       
+        .screen.active {
+            display: block;
+        }
+       
+        /* Header rediseñado */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    background: rgba(15, 20, 30, 0.6);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    padding: 10px 14px 10px 22px;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+    transition: all 0.3s ease;
+}
+
+.header:hover {
+    background: rgba(20, 25, 35, 0.7);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+       
+        .header h1 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+    color: #ffffff;
+    font-family: 'Prata', serif;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+       
+       .header button#detailBackBtn {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+    color: #ffffff;
+    font-family: 'Prata', serif;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+body.light-mode .header button#detailBackBtn {
+    color: #0f172a;
+}
+       
+       .header button#detailBackBtn i {
+    color: #f59e0b;
+}
+body.light-mode .header button#detailBackBtn i {
+    color: #f59e0b;
+}
+       
+        .header h1 i {
+            color: #f59e0b;
+            margin-right: 8px;
+        }
+       
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+       
+        .icon-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    width: 44px;
+    height: 44px;
+    border-radius: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1.2rem;
+    text-decoration: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+       
+        @media (hover: hover) {
+    .icon-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+}
+       
+        .icon-btn:active {
+            transform: translateY(0);
+        }
+       
+        /* Pantalla de idiomas - estilo premium */
+        .language-selector {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: rgba(15, 20, 30, 0.5);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-radius: 48px;
+    padding: 40px 28px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+}
+       
+        .language-selector h2 {
+            font-size: 2.5rem;
+            font-weight: 400;
+            line-height: 1.2;
+            margin-bottom: 40px;
+            color: #ffffff;
+            font-family: 'Prata', serif;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+       
+        .language-selector h2 span,
+.language-selector h2 #secretWord {
+    color: #f59e0b;
+    font-style: italic;
+}
+       
+        .language-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+       
+        .lang-btn {
+    padding: 18px;
+    border: none;
+    border-radius: 100px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset, 0 0 20px rgba(59, 130, 246, 0);
+    letter-spacing: 0.3px;
+    animation: borderGlow 3s ease-in-out infinite;
+}
+
+@keyframes borderGlow {
+    0%, 100% { border-color: rgba(255, 255, 255, 0.15); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset, 0 0 20px rgba(59, 130, 246, 0); }
+    50% { border-color: rgba(99, 102, 241, 0.5); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset, 0 0 30px rgba(99, 102, 241, 0.3); }
+}
+
+.lang-btn:hover {
+    border-radius: 30px;
+    transform: scale(1.02) translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.lang-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.lang-btn:hover::before {
+    left: 100%;
+}
+
+.lang-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+}
+       
+        @media (hover: hover) {
+    .lang-btn:hover::after {
+        width: 300px;
+        height: 300px;
+    }
+
+    .lang-btn:hover {
+        transform: scale(1.02);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+}
+       
+        .lang-btn i {
+            font-size: 1.3rem;
+            width: 24px;
+        }
+       
+        .lang-btn[data-lang="gl"] { background: linear-gradient(145deg, #059669, #047857); }
+        .lang-btn[data-lang="es"] { background: linear-gradient(145deg, #dc2626, #b91c1c); }
+        .lang-btn[data-lang="en"] { background: linear-gradient(145deg, #2563eb, #1d4ed8); }
+        .lang-btn[data-lang="fr"] { background: linear-gradient(145deg, #ea580c, #c2410c); }
+       
+        .footer-note {
+            margin-top: 40px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+       
+        .footer-note i {
+            color: #f59e0b;
+            margin: 0 4px;
+        }
+       
+        /* Mapa con bordes más suaves */
+        #realMap {
+            height: 380px;
+            width: 100%;
+            border-radius: 32px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s ease;
+        }
+       
+        /* Lista de puntos rediseñada */
+        .poi-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+       
+        .poi-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    background: rgba(15, 20, 30, 0.6);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.poi-item::after {
+    content: '';
+    position: absolute;
+    top: var(--y, 50%);
+    left: var(--x, 50%);
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.08), transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.poi-item:hover::after {
+    opacity: 1;
+}
+
+.poi-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.02), transparent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.poi-item:hover::before {
+    opacity: 1;
+}
+       
+        /* ESTILO PARA PUNTO CERCA - BORDE IZQUIERDO VERDE */
+        .poi-item.near-poi {
+            background: rgba(16, 185, 129, 0.15);
+            border-left: 8px solid #10b981;
+            border-radius: 28px 28px 28px 28px;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+            transform: scale(1.02);
+        }
+       
+        body.light-mode .poi-item.near-poi {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 8px solid #059669;
+        }
+       
+        @media (hover: hover) {
+    .poi-item:hover {
+        background: rgba(20, 25, 40, 0.8);
+        border-color: rgba(255, 255, 255, 0.15);
+        transform: translateX(5px);
+    }
+
+    .poi-item.near-poi:hover {
+        background: rgba(16, 185, 129, 0.25);
+        border-left: 8px solid #10b981;
+    }
+}
+       
+        .poi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.6rem;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.4);
+        }
+       
+        .poi-info {
+            flex: 1;
+        }
+       
+        .poi-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: #ffffff;
+        }
+       
+        .poi-info p {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+       
+        .distance-badge {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    padding: 6px 14px;
+    border-radius: 40px;
+    font-size: 0.8rem;
+    color: #ffffff;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+       
+        @media (hover: hover) {
+    .distance-badge:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: scale(1.05);
+    }
+
+    .poi-item.near-poi .distance-badge:hover {
+        background: #0d9668;
+    }
+}
+       
+        .poi-item.near-poi .distance-badge i {
+            color: white;
+        }
+       
+       .poi-item.near-poi .distance-badge {
+            background: #10b981;
+            color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+       
+        .distance-badge i {
+            color: #60a5fa;
+            font-size: 0.7rem;
+        }
+       
+        /* Detalle POI */
+        .poi-detail {
+    background: rgba(15, 20, 30, 0.6);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-radius: 40px 40px 0 0;
+    padding: 32px 24px;
+    min-height: 80vh;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: none;
+    box-shadow: 0 -10px 40px -10px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+}
+       
+        .poi-title {
+            font-size: 2rem;
+            font-weight: 400;
+            line-height: 1.2;
+            margin-bottom: 4px;
+            color: #ffffff;
+            font-family: 'Prata', serif;
+        }
+       
+        .poi-subtitle {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 28px;
+            font-style: italic;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 16px;
+        }
+       
+        /* Tabs mejorados */
+        .media-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    padding: 6px;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 14px 8px;
+    border: none;
+    background: transparent;
+    border-radius: 100px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    letter-spacing: 0.3px;
+}
+
+.tab-btn i {
+    font-size: 1.1rem;
+    transition: transform 0.3s ease;
+}
+
+.tab-btn:hover i {
+    transform: scale(1.1);
+}
+
+.tab-btn.active {
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.4), rgba(99, 102, 241, 0.3));
+    color: white;
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    box-shadow: 0 8px 20px -8px rgba(59, 130, 246, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+       
+        .tab-content {
+            display: none;
+            animation: fadeTab 0.3s ease;
+        }
+       
+        @keyframes fadeTab {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+       
+        .tab-content.active {
+            display: block;
+        }
+       
+        .story-text {
+    line-height: 1.8;
+    background: rgba(15, 20, 30, 0.5);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    padding: 28px;
+    border-radius: 30px;
+    white-space: pre-line;
+    font-size: 1rem;
+    color: #f1f5f9;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+    letter-spacing: 0.2px;
+}
+       
+       .copy-story-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 40px;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-family: 'Space Grotesk', sans-serif;
+    transition: all 0.3s ease;
+    width: fit-content;
+}
+.copy-story-btn:hover {
+    background: rgba(59, 130, 246, 0.25);
+    border-color: rgba(59, 130, 246, 0.5);
+    transform: translateY(-2px);
+}
+.copy-story-btn.copied {
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.5);
+}
+body.light-mode .copy-story-btn {
+    background: rgba(59, 130, 246, 0.08);
+    border-color: rgba(59, 130, 246, 0.2);
+    color: #0f172a;
+}
+body.light-mode .copy-story-btn:hover {
+    background: rgba(59, 130, 246, 0.15);
+}
+body.light-mode .copy-story-btn.copied {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+       
+        .audio-player {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 24px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+       
+        .audio-player audio {
+            width: 100%;
+            margin-top: 16px;
+            border-radius: 30px;
+        }
+       
+        .narrator-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+       
+        .narrator-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.4);
+        }
+       
+        .narrator-info div {
+            text-align: left;
+        }
+       
+        .narrator-info strong {
+            color: #ffffff;
+            display: block;
+            margin-bottom: 4px;
+        }
+       
+        .narrator-info p {
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+       
+        .video-container {
+            background: #000;
+            border-radius: 24px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+       
+        .sign-language-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(145deg, #3b82f6, #8b5cf6);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+       
+        /* Alerta de proximidad más elegante - CON BOTÓN DE CIERRE */
+        .proximity-alert {
+    position: fixed;
+    bottom: 24px;
+    left: 16px;
+    right: 16px;
+    background: rgba(16, 185, 129, 0.9);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    color: white;
+    padding: 18px 20px;
+    border-radius: 40px;
+    box-shadow: 0 40px 60px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+    display: none;
+    align-items: center;
+    gap: 18px;
+    z-index: 2000;
+    animation: slideUp 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+@keyframes slideUp {
+    from { 
+        transform: translateY(100%) scale(0.95); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translateY(0) scale(1); 
+        opacity: 1; 
+    }
+}
+       
+        .proximity-alert.show {
+            display: flex;
+        }
+       
+        .alert-icon {
+            font-size: 2.2rem;
+            background: rgba(255, 255, 255, 0.15);
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+       
+        .alert-content {
+            flex: 1;
+        }
+       
+        .alert-content h4 {
+            font-size: 1.1rem;
+            margin-bottom: 2px;
+            font-weight: 600;
+        }
+       
+        .alert-content p {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+       
+        .alert-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+       
+        /* Botón de direcciones Google Maps */
+
+.alert-btn {
+    background: white;
+            color: #10b981;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+       
+        @media (hover: hover) {
+    .alert-btn:hover {
+        transform: scale(1.02);
+        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .alert-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.02);
+    }
+}
+       
+       .alert-close {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1.2rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+       
+        .footer {
+            text-align: center;
+            padding: 24px 16px 16px;
+            color: #64748b;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 10;
+        }
+       
+        /* ===== MODO CLARO - CONTRASTES CORREGIDOS ===== */
+        body.light-mode {
+            background: #f8fafc;
+        }
+       
+        body.light-mode .gradient-overlay {
+            background: radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.05), transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.05), transparent 50%),
+                        linear-gradient(145deg, #f8fafc, #ffffff);
+        }
+       
+        body.light-mode .header {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+       
+        body.light-mode .header h1 {
+            color: #0f172a;
+        }
+       
+        body.light-mode .header h1 i {
+            color: #f59e0b;
+        }
+       
+        body.light-mode .icon-btn {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            color: #334155;
+        }
+       
+        @media (hover: hover) {
+    body.light-mode .icon-btn:hover {
+        background: rgba(0, 0, 0, 0.05);
+        border-color: rgba(0, 0, 0, 0.15);
+    }
+}
+       
+        body.light-mode .poi-item {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+       
+        body.light-mode .poi-item.near-poi {
+    background: rgba(255, 255, 255, 0.97);
+    border-left: 8px solid #059669;
+    border-top: 1px solid rgba(5, 150, 105, 0.2);
+    border-right: 1px solid rgba(5, 150, 105, 0.2);
+    border-bottom: 1px solid rgba(5, 150, 105, 0.2);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.25), 0 0 0 1px rgba(16, 185, 129, 0.15);
+    transform: scale(1.02);
+}
+
+body.light-mode .poi-item.near-poi .poi-info h3 {
+    color: #064e3b;
+    font-weight: 700;
+}
+
+body.light-mode .poi-item.near-poi .poi-info p {
+    color: #0d9488;
+    font-weight: 500;
+}
+
+@media (hover: hover) {
+    body.light-mode .poi-item:hover {
+        background: #ffffff;
+        border-color: rgba(0, 0, 0, 0.08);
+    }
+
+    body.light-mode .poi-item.near-poi:hover {
+        background: #f0fdfa;
+        border-left: 8px solid #047857;
+        border-top: 1px solid rgba(5, 150, 105, 0.25);
+        border-right: 1px solid rgba(5, 150, 105, 0.25);
+        border-bottom: 1px solid rgba(5, 150, 105, 0.25);
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.35);
+    }
+}
+
+body.light-mode .poi-info h3 {
+    color: #0f172a;
+}
+
+body.light-mode .poi-info p {
+    color: #334155;
+}
+
+body.light-mode .distance-badge {
+    background: rgba(0, 0, 0, 0.03);
+    color: #1e293b;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .poi-item.near-poi .distance-badge {
+    background: #059669;
+    color: white;
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+body.light-mode .poi-item.near-poi .distance-badge i {
+    color: white;
+}
+       
+        body.light-mode .language-selector {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+       
+        body.light-mode .language-selector h2 {
+            color: #0f172a;
+        }
+       
+        body.light-mode .poi-detail {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+       
+        body.light-mode .poi-title {
+            color: #0f172a;
+        }
+       
+        body.light-mode .poi-subtitle {
+            color: #475569;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+       
+        body.light-mode .story-text {
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+       
+        body.light-mode .audio-player {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+       
+        body.light-mode .narrator-info {
+            background: #f8fafc;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+       
+        body.light-mode .narrator-info strong {
+            color: #0f172a;
+        }
+       
+        body.light-mode .narrator-info p {
+            color: #475569;
+        }
+       
+        body.light-mode .media-tabs {
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+       
+        body.light-mode .tab-btn {
+            color: #64748b;
+        }
+       
+        body.light-mode .tab-btn.active {
+            background: #ffffff;
+            color: #3b82f6;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+       
+        body.light-mode .footer {
+            color: #64748b;
+        }
+       
+        body.light-mode .footer-note {
+            color: #64748b;
+        }
+       
+        body.light-mode .particle {
+            background: rgba(0, 0, 0, 0.1);
+        }
+       
+       /* Scroll personalizado */
+       /* Animaciones para iconos */
+.poi-icon {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.poi-item:hover .poi-icon {
+    transform: scale(1.05);
+    box-shadow: 0 15px 25px -8px rgba(0, 0, 0, 0.5);
+}
+
+.icon-btn {
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.icon-btn:active {
+    transform: scale(0.9);
+}
+
+.alert-btn {
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.alert-btn:active {
+    transform: scale(0.95);
+}
+::-webkit-scrollbar {
+            width: 4px;
+        }
+       
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+       
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+       
+        body.light-mode ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        
+/* Eliminar resalte en botón de cerrar popup de Leaflet */
+.leaflet-popup-close-button,
+.leaflet-popup-close-button:focus,
+.leaflet-popup-close-button:active,
+.leaflet-popup-close-button:hover {
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+        
+        /* Cursor personalizado */
+.custom-cursor {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(59, 130, 246, 0.8);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.2s ease, width 0.3s ease, height 0.3s ease, background 0.3s ease;
+    transform: translate(-50%, -50%);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+.custom-cursor-dot {
+    position: fixed;
+    width: 4px;
+    height: 4px;
+    background: #3b82f6;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    transition: transform 0.1s ease;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 15px #3b82f6;
+}
+
+.custom-cursor.expanded {
+    width: 50px;
+    height: 50px;
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(99, 102, 241, 0.6);
+}
+
+@media (max-width: 768px) {
+    .custom-cursor, .custom-cursor-dot {
+        display: none;
+    }
+}
+
+/* Animación de radar moderna para el marcador de ubicación */
+.user-location {
+    position: relative;
+    transition: transform 1s linear;
+}
+
+.user-location-inner {
+    animation: innerPulse 2s ease-in-out infinite;
+}
+
+@keyframes innerPulse {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.8), 0 0 0 0 rgba(59, 130, 246, 0.4);
+    }
+    50% { 
+        box-shadow: 0 0 0 8px rgba(59, 130, 246, 0), 0 0 0 15px rgba(59, 130, 246, 0);
+    }
+}
+
+.user-location::before,
+.user-location::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    border: 2px solid rgba(59, 130, 246, 0.6);
+    transform: translate(-50%, -50%);
+    animation: radarRing 3s ease-out infinite;
+    pointer-events: none;
+}
+
+.user-location::before {
+    width: 20px;
+    height: 20px;
+    animation-delay: 0s;
+}
+
+.user-location::after {
+    width: 20px;
+    height: 20px;
+    animation-delay: 1s;
+}
+
+@keyframes radarRing {
+    0% {
+        width: 20px;
+        height: 20px;
+        opacity: 0.9;
+        border-width: 2.5px;
+    }
+    50% {
+        opacity: 0.4;
+        border-width: 1.5px;
+    }
+    100% {
+        width: 100px;
+        height: 100px;
+        opacity: 0;
+        border-width: 0.5px;
+    }
+}
+
+
+/* Indicador de dirección cuando el usuario está fuera del mapa */
+.user-direction-indicator {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    background: #3b82f6;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: directionPulse 2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.user-direction-indicator i {
+    font-size: 1.2rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+@keyframes directionPulse {
+    0%, 100% { box-shadow: 0 4px 15px rgba(59, 130, 246, 0.6); }
+    50% { box-shadow: 0 4px 25px rgba(59, 130, 246, 1); }
+}
+
+/* Alerta arrastrable para Roxín Roxal */
+.draggable-alert {
+    touch-action: none;
+}
+
+/* Punto bloqueado */
+.poi-item.locked-poi {
+    opacity: 0.6;
+    filter: grayscale(40%);
+}
+
+.poi-item.locked-poi .poi-info h3 {
+    color: #94a3b8;
+    font-style: italic;
+}
+.user-direction-indicator {
+    cursor: pointer;
+    pointer-events: auto;
+    touch-action: manipulation;
+}
+    </style>
+</head>
+<body>
+    <!-- Fondo animado -->
+    <canvas id="particleCanvas" class="particle-canvas"></canvas>
+    <div class="gradient-overlay"></div>
+
+    <!-- Alerta de proximidad con botón de cierre -->
+<div id="proximityAlert" class="proximity-alert">
+    <div class="alert-icon"><i class="fas fa-location-dot"></i></div>
+    <div class="alert-content">
+        <h4 id="alertTitle">Preto dun punto</h4>
+        <p id="alertDesc">Fai clic para descubrir a súa historia</p>
+    </div>
+    <div class="alert-actions">
+        <button class="alert-btn" id="alertBtn"><i class="fas fa-book-open"></i> <span id="alertBtnText">Ver</span></button>
+        <button class="alert-close" id="alertClose" aria-label="Pechar"><i class="fas fa-times"></i></button>
+    </div>
+</div>
+
+    <!-- Pantalla de idiomas -->
+<div id="screenLanguage" class="screen active">
+    <div class="language-selector">
+        <h2 id="languageTitle">Historias <span id="secretWord">Secretas</span><br>de Pontedeume</h2>
+        <div class="language-buttons">
+            <button class="lang-btn" data-lang="gl" onclick="selectLanguage('gl')"><i class="fas fa-flag"></i> Galego</button>
+            <button class="lang-btn" data-lang="es" onclick="selectLanguage('es')"><i class="fas fa-flag"></i> Español</button>
+            <button class="lang-btn" data-lang="en" onclick="selectLanguage('en')"><i class="fas fa-flag"></i> English</button>
+            <button class="lang-btn" data-lang="fr" onclick="selectLanguage('fr')"><i class="fas fa-flag"></i> Français</button>
+        </div>
+        <div class="footer-note" id="languageFooter">
+            <i class="fas fa-star"></i> IES Breamo · 3º ESO Oratoria <i class="fas fa-star"></i>
+        </div>
+    </div>
+</div>
+
+    <!-- Pantalla de mapa -->
+<div id="screenMap" class="screen">
+    <div class="header">
+        <h1 id="mapHeaderTitle"><i class="fas fa-map"></i>Historias Secretas</h1>
+        <div class="header-actions">
+            <button class="icon-btn" id="darkModeToggle" aria-label="Cambiar modo oscuro/claro"><i class="fas fa-moon"></i></button>
+            <button class="icon-btn" id="centerLocationBtn" aria-label="Centrar en mi ubicación"><i class="fas fa-location-crosshairs"></i></button>
+            <button class="icon-btn" onclick="showLanguageScreen()" aria-label="Seleccionar idioma"><i class="fas fa-globe"></i></button>
+        </div>
+    </div>
+   
+    <div id="realMap" style="position: relative;">
+    <div class="user-direction-indicator" id="userDirectionIndicator">
+    <i class="fas fa-arrow-up" style="color: white; font-size: 1rem; display: block;" id="directionArrow"></i>
+</div>
+</div>
+<div class="poi-list" id="poiList"></div>
+    <div class="footer" id="mapFooter">
+        <i class="fas fa-feather"></i> Alumnado de 3º ESO · IES Breamo <i class="fas fa-feather"></i>
+    </div>
+</div>
+
+<!-- Pantalla de detalle -->
+<div id="screenPoiDetail" class="screen">
+    <div class="header">
+        <button id="detailBackBtn" onclick="showMapScreen()" aria-label="Volver al mapa"><i class="fas fa-arrow-left" aria-hidden="true"></i> <span id="detailBackText">Volver</span></button>
+        <div class="header-actions">
+            <a class="icon-btn" id="gmapsDetailBtn" href="#" target="_blank" rel="noopener" aria-label="Como chegar" style="text-decoration: none;"><i class="fas fa-directions"></i></a>
+            <button class="icon-btn" id="copyStoryHeaderBtn" aria-label="Copiar historia"><i class="fas fa-copy"></i></button>
+            <button class="icon-btn" id="darkModeToggleDetail" aria-label="Cambiar modo oscuro/claro"><i class="fas fa-moon"></i></button>
+        </div>
+    </div>
+   
+    <div class="poi-detail" id="poiDetailContainer"></div>
+</div>
+
+    <script>
+        // Cursor personalizado (solo en dispositivos con hover/ratón)
+const isHoverDevice = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+if (isHoverDevice) {
+    const cursor = document.createElement('div');
+    cursor.className = 'custom-cursor';
+    const cursorDot = document.createElement('div');
+    cursorDot.className = 'custom-cursor-dot';
+    document.body.appendChild(cursor);
+    document.body.appendChild(cursorDot);
+
+    document.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+        cursorDot.style.left = e.clientX + 'px';
+        cursorDot.style.top = e.clientY + 'px';
+    });
+
+    document.addEventListener('mousedown', () => {
+        cursor.classList.add('expanded');
+        cursorDot.style.transform = 'translate(-50%, -50%) scale(1.5)';
+    });
+
+    document.addEventListener('mouseup', () => {
+        cursor.classList.remove('expanded');
+        cursorDot.style.transform = 'translate(-50%, -50%) scale(1)';
+    });
+
+    // Efecto hover en elementos interactivos
+    const interactiveElements = 'button, .poi-item, .icon-btn, .tab-btn, .distance-badge';
+    document.addEventListener('mouseover', (e) => {
+        if (e.target.closest(interactiveElements)) {
+            cursor.classList.add('expanded');
+        }
+    });
+
+    document.addEventListener('mouseout', (e) => {
+        if (e.target.closest(interactiveElements)) {
+            cursor.classList.remove('expanded');
+        }
+    });
+}
+
+// Canvas de partículas interactivo
+const particleCanvas = document.getElementById('particleCanvas');
+const ctx = particleCanvas.getContext('2d');
+let particles = [];
+const PARTICLE_COUNT = 40;
+
+function resizeCanvas() {
+    particleCanvas.width = window.innerWidth;
+    particleCanvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Crear partículas
+for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+        x: Math.random() * particleCanvas.width,
+        y: Math.random() * particleCanvas.height,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        size: Math.random() * 1.5 + 0.5,
+        baseX: 0,
+        baseY: 0
+    });
+}
+
+let pmouseX = 0, pmouseY = 0;
+document.addEventListener('mousemove', (e) => {
+    pmouseX = e.clientX;
+    pmouseY = e.clientY;
+});
+
+function getParticleColor() {
+    return document.body.classList.contains('light-mode') 
+        ? 'rgba(0, 0, 0, 0.12)' 
+        : 'rgba(255, 255, 255, 0.3)';
+}
+
+function animateParticles() {
+    ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+    
+    const color = getParticleColor();
+    
+    particles.forEach(p => {
+        // Movimiento suave de fondo
+        p.x += p.vx;
+        p.y += p.vy;
+        
+        // Rebotar en bordes
+        if (p.x < 0 || p.x > particleCanvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > particleCanvas.height) p.vy *= -1;
+        
+        // Interacción con ratón
+        const dx = pmouseX - p.x;
+        const dy = pmouseY - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (dist < 150) {
+            const angle = Math.atan2(dy, dx);
+            const force = (150 - dist) / 150 * 1.5;
+            p.x -= Math.cos(angle) * force;
+            p.y -= Math.sin(angle) * force;
+        }
+        
+        // Dibujar
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        
+        // Brillo sutil
+        if (!document.body.classList.contains('light-mode')) {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.fill();
+        }
+    });
+    
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+let currentLanguage = 'gl';
+let currentPoi = null;
+let map = null;
+let userMarker = null;
+// Traducciones de la interfaz
+const i18n = {
+    gl: {
+    poiNames: {
+    p1: 'O nacemento do Eume',
+    p2: 'As tres donas transparentes',
+    p3: 'Os pasais do Eume',
+    p4: 'A Ponte de Pontedeume',
+    p5: 'As augas salgadas',
+    p6: 'A Serea das Mirandas',
+    p9: 'A francesiña afogada',
+    p7: 'O castelo da fame',
+    p8: 'Roxín Roxal'
+},
+        back: 'Volver',
+        mapTitle: 'Historias Secretas',
+        read: 'Ler',
+        listen: 'Escoitar',
+        sign: 'Signos',
+        recordedVoice: 'Voz gravada polo alumnado',
+        narratedLegend: '✅ Lenda narrada',
+        pendingAudio: '⏳ Audio pendente',
+        fullscreenHint: 'Usa o botón de pantalla completa do reprodutor',
+        viewStory: 'Ver historia',
+        nearPoint: 'Preto dun punto',
+        clickToDiscover: 'Fai clic para descubrir a súa historia',
+        lessThan50m: 'Estás a menos de 50 metros',
+        locationWait: 'Aínda non se obtivo a túa localización. Agarda un momento...',
+        storyPending: 'Historia en galego pendente de redactar polo alumnado de 3º ESO.',
+        subtitleDefault: 'Lenda por descubrir',
+        subtitleBirth: 'Lenda do nacemento',
+        footerText: 'Alumnado de 3º ESO · IES Breamo',
+        languageTitle: 'Historias <span>Secretas</span><br>de Pontedeume',
+        languageFooter: 'IES Breamo · 3º ESO Oratoria',
+lockedPoiMessage: 'Achégate a este punto para desbloquear a súa historia.',
+lockedSubtitle: '🔒 Lenda bloqueada'
+,
+    },
+    es: {
+    poiNames: {
+    p1: 'El nacimiento del Eume',
+    p2: 'Las tres damas transparentes',
+    p3: 'Los pasajes del Eume',
+    p4: 'El puente de Pontedeume',
+    p5: 'Las aguas saladas',
+    p6: 'La Sirena de las Mirandas',
+    p9: 'La francesita ahogada',
+    p7: 'El castillo del hambre',
+    p8: 'Roxín Roxal'
+},
+        back: 'Volver',
+        mapTitle: 'Historias Secretas',
+        read: 'Leer',
+        listen: 'Escuchar',
+        sign: 'Signos',
+        recordedVoice: 'Voz grabada por el alumnado',
+        narratedLegend: '✅ Leyenda narrada',
+        pendingAudio: '⏳ Audio pendiente',
+        fullscreenHint: 'Usa el botón de pantalla completa del reproductor',
+        viewStory: 'Ver historia',
+        nearPoint: 'Cerca de un punto',
+        clickToDiscover: 'Haz clic para descubrir su historia',
+        lessThan50m: 'Estás a menos de 50 metros',
+        locationWait: 'Aún no se ha obtenido tu ubicación. Espera un momento...',
+        storyPending: 'Historia en español pendiente de redactar por el alumnado de 3º ESO.',
+        subtitleDefault: 'Leyenda por descubrir',
+        subtitleBirth: 'Leyenda del nacimiento',
+        footerText: 'Alumnado de 3º ESO · IES Breamo',
+        languageTitle: 'Historias <span>Secretas</span><br>de Pontedeume',
+        languageFooter: 'IES Breamo · 3º ESO Oratoria',
+lockedPoiMessage: 'Acércate a este punto para desbloquear su historia.',
+lockedSubtitle: '🔒 Leyenda bloqueada'
+,
+    },
+    en: {
+    poiNames: {
+    p1: "Eume's source",
+    p2: 'The three transparent ladies',
+    p3: 'The passageways of the Eume',
+    p4: 'The bridge of Pontedeume',
+    p5: 'The salty waters',
+    p6: 'The Mermaid of Las Mirandas',
+    p9: 'The little French girl who drowned in Pontedeume',
+    p7: 'The castle of hunger',
+    p8: 'Roxín Roxal'
+},
+        back: 'Back',
+        mapTitle: 'Secret Stories',
+        read: 'Read',
+        listen: 'Listen',
+        sign: 'Sign',
+        recordedVoice: 'Voice recorded by students',
+        narratedLegend: '✅ Narrated legend',
+        pendingAudio: '⏳ Audio pending',
+        fullscreenHint: 'Use the full screen button on the player',
+        viewStory: 'View story',
+        nearPoint: 'Near a point',
+        clickToDiscover: 'Click to discover its story',
+        lessThan50m: 'You are less than 50 meters away',
+        locationWait: 'Your location has not been obtained yet. Please wait...',
+        storyPending: 'Story in English to be written by 9th grade students.',
+        subtitleDefault: 'Legend to discover',
+        subtitleBirth: 'Legend of the birth',
+        footerText: '9th Grade Students · IES Breamo',
+        languageTitle: 'Secret <span>Stories</span><br>from Pontedeume',
+        languageFooter: 'IES Breamo · 9th Grade Oratory',
+lockedPoiMessage: 'Get closer to this point to unlock its story.',
+lockedSubtitle: '🔒 Locked legend'
+,
+    },
+    fr: {
+    poiNames: {
+    p1: 'La naissance de l\'Eume',
+    p2: 'Les trois dames transparentes',
+    p3: 'Les passages de l\'Eume',
+    p4: 'Le pont de Pontedeume',
+    p5: 'Les eaux salées',
+    p6: 'La Sirène de Las Mirandas',
+    p9: 'La petite Française qui s\'est noyée à Pontedeume',
+    p7: 'Le château de la faim',
+    p8: 'Roxín Roxal'
+},
+        back: 'Retour',
+        mapTitle: 'Histoires Secrètes',
+        read: 'Lire',
+        listen: 'Écouter',
+        sign: 'Signes',
+        recordedVoice: 'Voix enregistrée par les élèves',
+        narratedLegend: '✅ Légende racontée',
+        pendingAudio: '⏳ Audio en attente',
+        fullscreenHint: 'Utilisez le bouton plein écran du lecteur',
+        viewStory: 'Voir l\'histoire',
+        nearPoint: 'Près d\'un point',
+        clickToDiscover: 'Cliquez pour découvrir son histoire',
+        lessThan50m: 'Vous êtes à moins de 50 mètres',
+        locationWait: 'Votre position n\'a pas encore été obtenue. Veuillez patienter...',
+        storyPending: 'Histoire en français à rédiger par les élèves de 3ème.',
+        subtitleDefault: 'Légende à découvrir',
+        subtitleBirth: 'Légende de la naissance',
+        footerText: 'Élèves de 3ème · IES Breamo',
+        languageTitle: 'Histoires <span>Secrètes</span><br>de Pontedeume',
+        languageFooter: 'IES Breamo · 3ème Art Oratoire',
+lockedPoiMessage: 'Approchez-vous de ce point pour débloquer son histoire.',
+lockedSubtitle: '🔒 Légende bloquée'
+,
+    }
+};
+
+// Función helper para traducciones
+function t(key) {
+    return i18n[currentLanguage]?.[key] || i18n.gl[key] || key;
+}
+        let userCoordsActual = null;
+let poiMarkers = [];
+let lastAlertedPoi = null;
+let alertTimeout = null;
+let nearPois = new Set();
+let isFollowingUser = false; // Modo seguimiento
+
+       
+        const puntos = [
+    { id: 'p1', nome: 'O nacemento do Eume', coords: [43.406583, -8.165806], icon: '🌊', cor: '#10b981' },
+    { id: 'p2', nome: 'As tres donas transparentes', coords: [43.407694, -8.169083], icon: '👑', cor: '#f59e0b' },
+    { id: 'p3', nome: 'Os pasais do Eume', coords: [43.407694, -8.170444], icon: '🚶‍♂️', cor: '#3b82f6' },
+    { id: 'p4', nome: 'A Ponte de Pontedeume', coords: [43.407944, -8.171000], icon: '🌉', cor: '#8b5cf6' },
+    { id: 'p5', nome: 'As augas salgadas', coords: [43.408667, -8.172694], icon: '🧂', cor: '#ef4444' },
+    { id: 'p6', nome: 'A Serea das Mirandas', coords: [43.411320, -8.174277], icon: '🧜‍♀️', cor: '#ec4899' },
+    { id: 'p9', nome: 'A francesiña afogada', coords: [43.411528, -8.174527], icon: '💃', cor: '#f97316' },
+    { id: 'p7', nome: 'O castelo da fame', coords: [43.407583, -8.172083], icon: '🏰', cor: '#f43f5e' },
+    { id: 'p8', nome: 'Roxín Roxal', coords: [43.406722, -8.170917], icon: '🗡️', cor: '#a855f7' }
+];
+       
+       // 🔧 MODO EDICIÓN: Cambia false a true cuando quieras activar el bloqueo
+let BLOQUEO_ACTIVO = false;
+
+let unlockedPois = new Set(JSON.parse(localStorage.getItem('unlockedPois') || '[]'));
+
+// Si el bloqueo no está activo, desbloquear todos los puntos
+if (!BLOQUEO_ACTIVO) {
+    puntos.forEach(p => unlockedPois.add(p.id));
+}
+       
+        const poiData = {};
+        puntos.forEach(p => {
+            poiData[p.id] = {
+                gl: {
+                    title: p.nome,
+                    fullTitle: p.id === 'p1' ? 'O nacemento do Eume' :
+                              p.id === 'p2' ? 'As tres donas transparentes e a antiga cidade celta asolada' :
+                              p.id === 'p3' ? 'Os pasais que unían as dúas orelas do Eume na súa desembocadura' :
+                              p.id === 'p4' ? 'A Ponte de Pontedeume' :
+                              p.id === 'p5' ? 'De como foron salgadas as augas do esteiro do Eume, do porto de Pontedeume e mais da ría de Ares' :
+                              p.id === 'p6' ? 'A Serea das Mirandas' :
+p.id === 'p9' ? 'A francesiña que afogou en Pontedeume' :
+p.id === 'p7' ? 'O Castelo da fame' :
+                              'Roxín Roxal',
+                              subtitle: p.id === 'p1' ? 'A carreira ao mar' : p.id === 'p2' ? 'O feitizo asolagante' : p.id === 'p3' ? 'Vixiados polo demo' : p.id === 'p4' ? 'A ponte do demo' : p.id === 'p5' ? 'Amor e sal na ría' : p.id === 'p6' ? 'O amor entre a serea e o fidalgo' : p.id === 'p9' ? 'O pendente perdido' : p.id === 'p7' ? 'Amor encadeado' : 'O pirata Roxín',
+                    story: (() => {
+                        if (p.id === 'p1') {
+                            return `Conta a lenda que <strong>hai moitísimo tempo</strong> naceron tres fontes na Serra do Xistral e sentiron a chamada do mar. As tres querían chegar ao mar canto antes porque así recibirían un gran tesouro, así que decidiron partir xuntas para así compartilo. Así pois, as tres comezaron xuntas o seu camiño cara ao mar e convertéronse nos ríos Sor, Lando e Eume.
+
+Cando xa levaban baixado un bo treito e comezaba a caer a noite os tres ríos sentiron que as forzas lles faltaban e pactaron que botarían unha pequena soneca antes de retomar a súa andaina e que o primeiro que espertase avisaría aos outros dous para seguir xuntos a viaxe cara ao mar.
+
+Así e todo, Antubel, a deusa celta das augas durmidas, das sombras e da noite, apareceu e espertou ao Sor e tentouno para que marchara caladiñamente sen os seus compañeiros cara ao mar Cantábrico. E o Sor, cegado pola avaricia de chegar á meta o primeiro, partiu sen demora. Cando o Sor marchou, fixo o mesmo co Landro que tamén caeu na tentación da deusa celta e marchou silandeiro para abrazarse co mar Cantábrico.
+
+Á mañá seguinte, cando o Eume espertou e viu que os outros ríos o enganaran e xa marcharan, pediulle axuda a Endovélico, o deus ancestral do lume e da luz, e este axudouno para que chegara canto antes. O Eume, enfurecido, seguiu decontado o luceiro de Endovélico cara ao golfo Ártabro, por non coincidir no Cantábrico cos seus traizoeiros rivais, veloz e sen descanso, durante 80 kms, saltando por riba de todo o que se lle puxo diante.
+
+O Eume foi o primeiro dos tres en chegar ao mar, a Pontedeume deixando atrás fermosas paisaxes como son as Fragas do Eume e recibindo así unha morea de peixes e <strong>criaturas extraordinarias como tesouro, entre elas as sereas</strong> que tamén serán protagonistas deste roteiro.`;
+                        } else if (p.id === 'p2') {
+                            return `Moi antigamente, na desembocadura do Eume, na aba do monte de Breamo, os nosos devanceiros construíran un poboado que medraba en riqueza cada día, grazas á súa vizosa agricultura e gandaría e a abondosa pesca das rías veciñas.
+
+Un día chegaron á antiga e próspera vila, tres fermosas donas transparentes de cabelos louros que peiteaban con tres valiosos e máxicos peites de ouro e que enfeitizaron a moitos homes do lugar. Eran seres sobrenaturais, que lles facían as beiras cos seus encantamentos aos mozos máis garridos da vila.
+
+As tres donas transparentes só mostraban a súa fermosura despois do solpor e os homes acudían ao seu palacio, noite tras noite onde se celebraban verdadeiras orxías e bacanais. As liortas eran constantes entre eles e a prosperidade da vila estaba xa en perigo porque a festa permanente é inimiga do traballo e da defensa da cidade.
+
+Os membros do Consello de Anciáns estaban seriamente preocupados, polo que falaron co druída, que lles dixo que eran fadas encantadas que só traerían destrución. Este mandou que xuntasen a xente ao abeiro dos castros e que permanecesen alí durante tres días. Logo subiu ao cumio do monte Breamo e botou un esconxuro. Pouco despois refuxiouse tamén nun castro e decontado comezou a chover a Deus dar auga e non parou ata que pasaron tres días.
+
+A cidade quedou asolagada e os mozos que non fixeron caso da advertencia do Consello de Anciáns morreron afogados. Só salvaron a vida os que se goreceron no castro coas súas familias.
+
+Contan as lendas que, mesmo no medievo, estas poboacións sepultadas baixo as augas seguían vivas e que, en días sinalados, tocaban as campás e se oían os galos; os seus habitantes convertéranse en peixes moi grandes e negros. As cidades asolagadas pertencían ao mundo dos mortos.
+
+Das tres donas transparentes nunca máis se soubo de certo, aínda que hai quen di que se converteron en sereas e non abandonaron a nosa ría; unha vive nas profundidades do mar preto da Macuca; outra, no Mourón, <strong>e a terceira nas Mirandas (desta última falaremos despois)</strong>.`;
+                        } else if (p.id === 'p3') {
+                            return `Os achados romanos encontrados en Zopazos e outros lugares próximos parecen indicar que xa en tempos castrexos existía algún tipo de pasadoiro para comunicar, con marea baixa, os numerosos castros dunha a outra banda da ría.
+
+Conta unha lenda que os nosos devanceiros, antigamente, chantaran uns pasais de pedra, cubertos de madeira, para poder atravesar a pé, coa baixada da marea, dunha beira á outra da desembocadura do Eume. O paso con marea alta non se podía realizar se non era nunha pequena embarcación.
+
+Mais xa fose polo deterioro das pedras e da madeira, polas frecuentes riadas ou porque con frecuencia atravesaban con pesadas cargas, os antigos poboadores das ribeiras do Eume, ás veces esvaraban e, despois dunha peripatética danza intentando non perder a verticalidade, caían ao mar.
+
+Como moitos non sabían nadar e eran arrastrados pola corrente, o Demo estaba ao axexo para lles ofrecer a súa sempre interesada axuda. Algúns perderon a vida por rexeitar o satánico ofrecemento, pero non foron poucos os que lle entregaron a súa alma para saír do apuro <strong>(como tamén lle sucedeu a Minla tempo máis tarde)</strong>.`;
+                        } else if (p.id === 'p4') {
+                            return `<strong>No último cuarto do século XIV</strong>, a fermosa Minla, filla do primeiro señor de Pontedeume, Fernán Pérez de Andrade, vivía no palacio que os seus pais tiñan na vila e todos os días, co solpor, para non ser vista, acudía á ribeira a agardar por Ledán, un forte e garrido labrego de Cabanas ao que un mariñeiro amigo atravesaba no seu barco ata o outro lado do Eume para que puidese estar coa súa amada.
+
+Unha tarde levantouse, de súpeto, un gran temporal e as augas do río baixaban moi embravecidas. O mariñeiro non o quixo levar porque consideraba que era perigoso e Ledán, experto nadador, como sabía que na outra beira do río o agardaba Minla decidiu cruzar a nado a Pontedeume.
+
+Así e todo, e a pesar da súa destreza, afogou xa en Cabanas. Minla desde Pontedeume viu como o seu amado morría diante dos seus ollos sen poder socorrelo. Foi nese momento cando o demo, atento ás desgrazas alleas, se achegou á dama e ofreceulle axuda:
+
+- Se me das a túa alma, ao amencer heiche ter feita unha ponte!
+
+A moza, desesperada por darlle o derradeiro bico de amor a Ledán, aceptou coa condición de que a ponte estivese rematada antes de que cantase o galo negro do curral dos Andrade. O demo traballou toda a noite e foi quen de facer case setenta e un arcos de cantería. Ao alborexar cantou o galo dos Andrade e aínda quedaba un arco por rematar. Pero como a ponte xa case estaba rematada Minla puido cruzar e despedirse de Ledán dando un pequeno salto sobre o arco inacabado e así salvou a súa alma e o demo quedou retorto.
+
+O señor de Pontedeume, cando a súa filla lle contou o acontecido, decidiu terminar o último arco da ponte que uniu por terra a vila cos outros pobos situados na outra beira do río.
+
+Hai quen afirma, con retranca, que o nome de Pontedeume non significa "ponte do Eume", senón "ponte do demo".`;
+                        } else if (p.id === 'p5') {
+                            return `O rei Afonso X o Sabio concedeu a Pontedeume <strong>en 1270</strong> un privilexio: permitíalles aos seus habitantes pescar libremente polo mar e eximíaos de pagar impostos de ningún tipo por todo canto pescasen. Ademais da súa protección, concedeulles tamén un día de mercado cada mes e garantíalles seguridade ao que alí fosen.
+
+Isto supuxo un impulso moi grande para a pesca e o comercio en Pontedeume, aínda que tamén trouxo perigos de fóra, como ataques de embarcacións invasoras ou mesmo <strong>piratas (como Roxín Roxal</strong>, do que logo falaremos) que entraban na ría polo golfo Ártabro.
+
+Un dos homes máis aventureiros da vila mercou un barco e decidiu probar fortuna fóra de Pontedeume e prometeulle á súa noiva (a rapaza máis fermosa da vila) que pronto volvería con cartos e que casarían, como sempre quixeran.
+
+Na súa viaxe chegou un día á illa do Sal e cando bicou o seu branco xabre (area grosa), comprobou que era moi saboroso. Entón encheu o seu barco desa area salgada e foina vender polo mundo, facéndose así rico co seu comercio.
+
+Cando volveu a Pontedeume, mandou construír alí unha luxosa vivenda e casou coa súa noiva. Mais pouco despois do casamento, o home volveu marchar no seu barco para continuar a súa actividade comercial, e a súa muller quedou na fermosa casa que construíran.
+
+Naquela altura o responsable do coidado da vila era un tirano que vivía na fortaleza defensiva situada no lugar onde hoxe se atopa o torreón dos Andrade. Tiña unha grande envexa da persoa que se convertera no home máis rico da vila e no esposo da moza máis belida.
+
+Por esta razón, unha noite aproveitando a ausencia do marido, decidiu secuestrar a rapaza na súa torre, onde a encarcerou para aldraxala e violala. Pero esa noite a lúa deu paso a unha forte tempestade que provocou unhas insólitas e feras ondas que derrubaron o cuarto da fortaleza onde se atopaba o fidalgo e que lle causaron a morte.
+
+Cando regresou o home un mes despois e lle contaron como fora liberada a súa querida muller, decidiu como recompensa verter todo o sal que quedaba na súa illa naquelas augas do esteiro e do porto eumés e mais na boca da ría de Ares, pois aínda eran doces, para que tivesen mellor sabor; por iso hoxe son salgadas.
+
+Así mesmo, quixo quedar xa sempre na vila para coidar persoalmente da fermosa moza e gozar da súa compañía.`;
+                        } else if (p.id === 'p7') {
+                            return `Contan en Pontedeume que, <strong>sendo señor Fernán Pérez de Andrade -ou Nuno Freire de Andrade-</strong>, o alcaide do castelo, Pero Lopez, famoso pola súa crueldade, namorou dunha rapaza chamada Elvira, ama de compañía da señora de Andrade, á que servía no torreón de Pontedeume. Ela rexeitou os seus amores porque xa era noiva de Mauro, o paxe favorito de don Fernán -ou don Nuno-. Había mesmo rumores de que podía ser o seu fillo.
+
+O alcaide non podía aturar que Elvira preferise a Mauro antes que a el e mandou ao único servente no que confiaba a que secuestrase os amantes e os encerrase nunha dependencia da torre do castelo de Andrade á que ninguén máis podía acceder.
+
+Os señores de Pontedeume, alarmados pola súa desaparición andaron varios días na súa procura, pola vila, polas parroquias, nas Fragas do Eume, nos bosques de Breamo… pero todos os seus intentos acabaron en fracaso.
+
+O alcaide convenceu a don Fernán -ou a don Nuno- de que tiña información que lle permitía asegurar que os dous namorados fuxiran xuntos ben lonxe. E aínda que de vez en cando subían á azotea do Torreón coa esperanza de que regresasen, confiados nas explicacións de Pero Lopez, aceptaron resignados que non os volverían ver.
+
+Os dous rapaces permaneceron longos meses encadeados na escura e solitaria cela na que os encerraran e o servente do alcaide, que era mudo, leváballes comida a diario. O único consolo para os amantes era que estaban xuntos.
+
+Un día, cando o fiel servo lles levou o xantar, o valente Mauro aproveitou que se inclinaba para deixar o prato no chan e golpeouno con tanta forza que o deixou ferido de morte. Conseguiu arrebatarlle as chaves e soltarse, pero mentres foi liberar a Elvira, o carcereiro fuxiu coas chaves da cela e quedaron encerrados.
+
+O servo contoulle por acenos o que acontecera e cando rematou o relato morreu. O alcaide, en vinganza, decidiu deixar morrer de fame aos amantes. Pasados varios meses e xa no seu leito de morte o alcaide confesoulle ao señor de Pontedeume o que urdira contra Mauro e Elvira e cando chegaron á cela do castelo de Andrade, atoparon os seus cadáveres abrazados.`;
+                        } else if (p.id === 'p9') {
+                            return `Segundo antigas lendas, <strong>moitas cidades asolagadas</strong> quedaron supultadas baixo as areas e que as persoas que se aventuran nas súas augas corren o risco de seren tragadas para pasar a aumentar o censo dos seus habitantes. Contan en Pontedeume que algo semellante foi o que aconteceu coa Francesiña.
+
+Sobre a mítica e lendaria cidade asolagada (<strong>na que as tres donas</strong> causaban sensación entre os homes do lugar) construírase no comezo do <strong>século XX</strong> a ponte de ferro eumesa. Foi adurante a súa construlción cando aconteceu esta historia: unha francesiña que veraneaba todos os meses de agosto en Pontedeume adoitaba tirarse do murallón e nadar ata a pena do Soldado. Era unha magnífica nadadora e os mariñeiros que remendaban as redes no murallón ficaban abraiados, pois a súa forma de xogar coas ondas lembráballes á dunha serea.
+
+Un día, cando cruzaba nadando por debaixo da ponte de ferro, perdeu o que ela xulgaba o seu máis prezado tesouro (un pendente de ouro que o seu mozo eumés lle regalara). Aínda non chegara a súa xoia ao fondo do mar e xa pensaba ela no xeito de recuperala. Subiu á primeira cepa da ponte, colleu folgos e mergullouse nas profundidades. Pero todo foi inútil.
+
+A mítica cidade somerxida baixo as areas xa collera un novo tesouro e abofé que non o había soltar. A Francesiña loitou tamén por non ser atrapada, pero aínda que foi quen de escapar, cando aboiou, xa estaba morta. Un mariñeiro da ribeira saltou axiña a bordo dunha barca e foi onda ela pero só conseguiu recoller o seu corpo.
+
+A Francesiña foi enterrada en Pontedeume e na súa sepultura esculpiron en mármore o seu rosto, no que faltaba o pendente.`;
+                        } else if (p.id === 'p8') {
+                            return `Despois de que en 1270 Afonso X o Sabio outorgase o privilexio que impulsou o poboamento e a fundación de Pontedeume, a vila fortificouse para facer fronte aos ataques de <strong>embarcacións invasoras ou mesmo piratas</strong> que chegaban á ría polo golfo Ártabro. Esta foi tamén a razón da construción en Nogueirosa da fortaleza do castelo de Andrade.
+
+Nos tempos de Fernán Pérez de Andrade, chegaron a Pontedeume uns piratas que pretendían saquear a vila. Un deles de pelo roxo e pel branca coma a neve, rouboulle ademais o corazón a unha das doncelas que servían no palacio dos Andrade e mantivo con ela unha apaixonada relación amorosa.
+
+Así e todo, pouco lles durou a felicidade, pois algúns días máis tarde o pirata marchou na súa embarcación cos seus compañeiros pola ría de Ares e a antes doncela pariu nove meses despois un fermoso fillo co pelo roxo e a pel branca coma o pai, do que nunca máis se volveu saber nada.
+
+A rapaza, pola súa bondade e lealdade aos señores de Andrade, seguiu servindo no palacio e o fillo, ao que lle puxo por nome Roxín Roxal e que herdara a forza e valentía do seu pai e a lealdade da súa nai, cando cumpriu os quince anos, foi chamado como paxe para servir no castelo erguido sobre a pena Leboreiro, onde fixou a súa residencia.
+
+Nese momento, <strong>primeiro cuarto do século XV</strong>, era xa señor de Pontedeume don Nuno Freire de Andrade, alcumado "O malo" polos seus vasalos que debido aos seus abusos organizaron a primeira revolta irmandiña. Don Nuno tiña dous descendentes varóns e vivía coa súa única filla, Tareixa, no seu palacio de Pontedeume.
+
+Tareixa era unha rapaza moi alegre e fermosa e gozaba paseando a pé, dacabalo ou en barco, polo río Eume e a súa fraga, o monte Breamo ou polas praias da bisbarra. Pero como tamén era algo inconsciente e díscola, o seu pai decidiu encomendarlle o seu coidado e protección a Roxín Roxal, a quen tiñan por un rapaz intelixente e valente, merecedor da súa confianza e simpatía.
+
+O doncel acompañaba a Tareixa onde queira que fose e, pouco a pouco, foi nacendo entre eles, primeiro, a amizade e, máis tarde, o amor. Roxín Roxal, que sempre andaba contento e feliz empezou a sentirse tristeiro e morriñento o tempo que non estaba con Tareixa, mais pola consideración que lle tiña a don Nuno non se atrevía a declararlle o seu amor a Tareixa.
+
+Con todo, a moza cando viu a melancolía con que a miraba decatouse de que devecía por ela e confesoulle que o seu sentimento era recíproco. Pero o seu noivado durou ben pouco xa que cando o señor de Pontedeume soubo o que acontecía prohibiulle ao rapaz que volverse ver á súa filla e recluíuno ás inmediacións do castelo de Andrade.
+
+Don Nuno, a pesar da grande estima que lle tiña, non podía tolerar que Roxín Roxal casase coa súa filla, pois era de moi humilde condición e, por iso, xa arranxara o matrimonio da súa filla con Henrique de Osorio, un home coa posición social que merecían os Andrade.
+
+Roxín Roxal cumpriu escrupulosamente as ordes do seu señor e este decidiu agasallalo, como recompensa pola súa fidelidade, cunha valiosa daga de ouro na que aparecían gravadas as iniciais R.R. O tempo pasou, Henrique e Tareixa casaron, Nuno seguía gobernando o seu feudo e Tareixa non soubo máis nada de Roxín Roxal.
+
+Nese tempo, un terrible xabaril, o máis grande dos que xamais se viu, comezou a atacar as terras dos Andrade. Canso das queixas dos seus campesiños, Nuno organizou unha batida, a cuxo fronte ían o seu xenro Henrique e a súa filla Tareixa. Foron acurralando ao xabaril, que xa ferido e ameazante baixou polo monte ata chegar á ponte onde o estaban esperando. Henrique de Osorio cando viu que o tiña a tiro lanzoulle unha frecha e o animal, enfurecido, atacou con saña a Tareixa, a quen feriu de morte. E o covarde do seu esposo, en lugar de defendela, tirouse ao río para salvar a súa propia vida.
+
+Poucos días despois, na mesma ponte, apareceu morto o xabaril, que tiña cravada na súa gorxa a daga que don Nuno lle regalara a Roxín Roxal. Só o de Andrade sabía que non podía ser doutro cabaleiro. Foi entón cando entendeu que impedir o matrimonio entre a súa filla e o vasalo fora un gran desatino, xa que este, aínda sendo plebeo, abofé que a tería defendido mellor que o nobre don Henrique.`;
+                                                } else if (p.id === 'p6') {
+                            return `Contan en Pontedeume que, nas profundidades mariñas da ría de Ares, vive desde hai moitos séculos a serea das Mirandas, chamada así porque preto daquelas penas ten o seu fogar, aínda que se move por todo o golfo Ártabro. <strong>Seica nalgunha noite de lúa chea se achega ata a ponte de pedra</strong> para gozar da fermosura da vila, con moito coidado de que non a vexa ninguén.
+
+As sereas son seres mitolóxicos que teñen o corpo, sempre espido, dunha muller fermosa, con longos cabelos e a cola dun peixe no canto das pernas. Levan un espello e un peite e viven en palacios de cristal cheos de riquezas debaixo do mar. Ademais, atraen os mariñeiros coa súa voz, sedúcenos e fanos afogar.
+
+A serea das Mirandas adoita xogar cos golfiños e achegarse aos polbos, chocos e robalizas que se moven polo golfo Ártabro, pero ben sabe que o que nunca pode facer é achegarse aos homes porque, se desen con ela, xa non a deixarían en paz.
+
+Algunhas noites de ardentía en agosto, moitos rapaces acoden ás praias para se bañaren á luz das estrelas. Unha desas noites de verán, <strong>nos últimos anos do século XIII</strong>, un fidalgo sorprendeu á serea sentada nunha rocha mentres se bañaba en Centroña. Quedou tan impresionado pola súa beleza que lle pediu que volvese ao día seguinte.
+
+O fidalgo non tiña acougo sen ela e rogoulle que fose vivir onda el. Así o fixo a serea das Mirandas e este, con mimo, delicadez e moita paciencia, foille quitando unha a unha as escamas da súa cola ata que quedaron ao descuberto dúas fermosas e longas pernas de muller. Os dous namorados casaron, tiveron fillos e foron moi felices xuntos.
+
+Mais cando o seu home morreu, a serea deixou os seus fillos xa maiores e <strong>volveu a vivir nas augas salgadas</strong> da ría de Ares, no fermoso palacio que tiña debaixo do mar, preto das illas Mirandas. Non se deixou ver máis por ser humano ningún, aínda que, certas noites de ardentía, algún vello mariñeiro conta que escoitou arrepiado a máis fermosa e doce canción de amor que viña do fondo do mar entoada pola voz da malpocada serea.`;
+                        } else {
+                            return 'Historia en galego pendente de redactar polo alumnado de 3º ESO.';
+                        }
+                    })(),
+                    audioNarrator: 'Alumna de 3º ESO - IES Breamo',
+                    audioUrl: p.id === 'p1' ? 'https://archive.org/download/audio-lenda-1-rio-eume/Audio%20lenda%201%20Rio%20Eume.mp3' : '#',
+                    videoUrl: p.id === 'p1' ? 'https://archive.org/download/video-lenda-1-rio-eume/Video%20Lenda%201%20Rio%20Eume.ia.mp4' : '#'
+                },
+                es: {
+                    title: p.id === 'p1' ? 'El nacimiento del Eume' :
+                           p.id === 'p2' ? 'Las tres damas transparentes' :
+                           p.id === 'p3' ? 'Los pasajes del Eume' :
+                           p.id === 'p4' ? 'El puente de Pontedeume' :
+                           p.id === 'p5' ? 'Las aguas saladas' :
+                           p.id === 'p6' ? 'La Sirena de las Mirandas' :
+p.id === 'p9' ? 'La francesita ahogada' :
+p.id === 'p7' ? 'El castillo del hambre' :
+                           'Roxín Roxal',
+                    fullTitle: p.id === 'p1' ? 'El nacimiento del Eume' :
+                              p.id === 'p2' ? 'Las tres damas transparentes y la antigua ciudad celta anegada' :
+                              p.id === 'p3' ? 'Los pasajes que unían las dos orillas del Eume en su desembocadura' :
+                              p.id === 'p4' ? 'El puente de Pontedeume' :
+                              p.id === 'p5' ? 'De cómo se salaron las aguas del estuario del Eume, del puerto de Pontedeume y de la ría de Ares' :
+                              p.id === 'p6' ? 'La Sirena de las Mirandas' :
+p.id === 'p9' ? 'La francesita que se ahogó en Pontedeume' :
+p.id === 'p7' ? 'El castillo del hambre' :
+                              'Roxín Roxal',
+                              subtitle: p.id === 'p1' ? 'La carrera al mar' : p.id === 'p2' ? 'El hechizo que inundó' : p.id === 'p3' ? 'Vigilados por el diablo' : p.id === 'p4' ? 'El puente del diablo' : p.id === 'p5' ? 'Amor y sal en la ría' : p.id === 'p6' ? 'El amor entre la sirena y el hidalgo' : p.id === 'p9' ? 'El pendiente perdido' : p.id === 'p7' ? 'Amor encadenado' : 'El pirata Roxín',
+                    story: (() => {
+                        if (p.id === 'p1') {
+                            return `Cuenta la leyenda que hace muchísimo tiempo nacieron tres fuentes en la Sierra del Xistral y sintieron la llamada del mar. Las tres querían llegar al mar cuanto antes porque así recibirían un gran tesoro, así que decidieron partir juntas para compartirlo.
+Así pues, las tres comenzaron juntas su camino hacia el mar y se convirtieron en los ríos Sor, Landro y Eume.
+
+Cuando ya habían descendido un buen trecho y comenzaba a caer la noche, los tres ríos sintieron que las fuerzas les faltaban y acordaron echar una pequeña siesta antes de retomar su andanza, prometiendo que el primero que despertara avisaría a los otros dos para seguir juntos el viaje hacia el mar.
+
+Sin embargo, Antubel, la diosa celta de las aguas dormidas, de las sombras y de la noche, apareció y despertó al Sor, tentándolo para que marchara silenciosamente hacia el mar Cantábrico sin esperar a sus compañeros. Y el Sor, cegado por la avaricia de llegar el primero a la meta, partió sin demora.
+Cuando el Sor se fue, hizo lo mismo con el Landro, que también cayó en la tentación de la diosa celta y partió calladamente a abrazarse con el mar Cantábrico.
+
+A la mañana siguiente, cuando el Eume despertó y vio que los otros ríos lo habían engañado y ya se habían marchado, pidió ayuda a Endovélico, el dios ancestral del fuego y de la luz, y este lo ayudó para que llegara cuanto antes. El Eume, enfurecido, siguió de inmediato el lucero de Endovélico hacia el golfo Ártabro, para no coincidir en el Cantábrico con sus traicioneros rivales, veloz y sin descanso durante 80 km, saltando por encima de todo lo que se le ponía delante.
+
+El Eume fue el primero de los tres en llegar al mar, a Pontedeume, dejando atrás hermosos paisajes como las Fragas do Eume y recibiendo así una gran cantidad de peces y criaturas extraordinarias como tesoro, entre ellas las sirenas que también serán protagonistas de esta ruta.`;
+                        } else if (p.id === 'p2') {
+                            return `Hace muchísimo tiempo, en la desembocadura del Eume, a la falda del monte Breamo, nuestros antepasados construyeron un poblado que crecía en riqueza cada día, gracias a su abundante agricultura y ganadería, y a la pesca de las rías vecinas.
+
+Un día llegaron a aquella antigua y próspera villa tres hermosas damas transparentes de cabellos rubios que se peinaban con tres valiosos y mágicos peines de oro, y que hechizaron a muchos hombres del lugar. Eran seres sobrenaturales que con sus encantamientos cortejaban a los mozos más apuestos de la villa.
+
+Las tres damas transparentes solo mostraban su hermosura después del atardecer, y los hombres acudían a su palacio noche tras noche, donde se celebraban verdaderas orgías y bacanales. Las disputas eran constantes entre ellos y la prosperidad de la villa empezaba a peligrar, porque la fiesta permanente es enemiga del trabajo y de la defensa de la ciudad.
+
+Los miembros del Consejo de Ancianos estaban seriamente preocupados, así que hablaron con el druida, quien les dijo que eran hadas encantadas que solo traerían destrucción. Les ordenó reunir a la gente bajo la protección de los castros y permanecer allí durante tres días. Luego subió a la cumbre del monte Breamo y lanzó un conjuro. Poco después también se refugió en un castro, y de inmediato comenzó a llover torrencialmente durante tres días.
+
+La ciudad quedó anegada y los jóvenes que no hicieron caso de la advertencia del Consejo de Ancianos murieron ahogados. Solo salvaron la vida quienes se refugiaron en el castro con sus familias.
+
+Cuentan las leyendas que incluso en la Edad Media esas poblaciones sepultadas bajo las aguas seguían vivas y que, en días señalados, sonaban sus campanas y se oían los gallos; sus habitantes se habían convertido en peces muy grandes y negros. Las ciudades anegadas pertenecían al mundo de los muertos.
+
+De las tres damas transparentes nunca más se supo con certeza, aunque hay quien dice que se convirtieron en sirenas y no abandonaron nuestra ría: una vive en las profundidades del mar cerca de la Macuca; otra, en Mourón; y la tercera, en las Mirandas (de esta última hablaremos después).`;
+                        } else if (p.id === 'p3') {
+                            return `Los hallazgos romanos encontrados en Zopazos y otros lugares próximos parecen indicar que ya en tiempos castreños existía algún tipo de pasadero para comunicar, con marea baja, los numerosos castros de una a otra orilla de la ría.
+
+Cuenta una leyenda que nuestros antepasados, antiguamente, habían clavado unos pasajes de piedra cubiertos de madera, para poder cruzar a pie, con la bajamar, de una orilla a otra de la desembocadura del Eume. El paso con marea alta solo podía hacerse en una pequeña embarcación.
+
+Pero ya fuera por el deterioro de las piedras y de la madera, por las frecuentes crecidas o por el peso de las cargas que transportaban, los antiguos habitantes de las riberas del Eume a veces resbalaban y, tras una torpe danza intentando no perder el equilibrio, caían al mar.
+
+Como muchos no sabían nadar y eran arrastrados por la corriente, el Diablo estaba al acecho para ofrecerles su siempre interesada ayuda. Algunos perdieron la vida por rechazar la oferta satánica, pero no fueron pocos los que le entregaron su alma para salir del apuro (como también le sucedió a Minla tiempo después).`;
+                        } else if (p.id === 'p4') {
+                            return `En el último cuarto del siglo XIV, la hermosa Minla, hija del primer señor de Pontedeume, <strong>Fernán Pérez de Andrade</strong>, vivía en el palacio que sus padres tenían en la villa. Todos los días, al atardecer, para no ser vista, acudía a la ribera a esperar a Ledán, un fuerte y apuesto labriego de Cabanas al que un marinero amigo cruzaba en su barco al otro lado del Eume para que pudiera estar con su amada.
+
+Una tarde se levantó, de repente, una gran tempestad y las aguas del río bajaban muy embravecidas. El marinero no quiso llevarlo porque lo consideraba peligroso, y Ledán, experto nadador, sabiendo que en la otra orilla lo esperaba Minla, decidió cruzar a nado hacia Pontedeume.
+
+Sin embargo, a pesar de su destreza, se ahogó ya en Cabanas. Minla, desde Pontedeume, vio cómo su amado moría delante de sus ojos sin poder socorrerlo. Fue entonces cuando el diablo, atento a las desgracias ajenas, se acercó a la dama y le ofreció ayuda:
+
+—Si me das tu alma, al amanecer tendrás el puente terminado.
+
+La joven, desesperada por darle el último beso de amor a Ledán, aceptó con la condición de que el puente estuviera terminado antes de que cantara el gallo negro del corral de los Andrade. El diablo trabajó toda la noche y logró hacer casi setenta y un arcos de piedra. Al amanecer cantó el gallo de los Andrade y aún quedaba un arco por terminar. Pero como el puente ya estaba casi completo, Minla pudo cruzar y despedirse de Ledán dando un pequeño salto sobre el arco inacabado; así salvó su alma y el diablo quedó burlado.
+
+El señor de Pontedeume, cuando su hija le contó lo sucedido, decidió terminar el último arco del puente, que unió por tierra la villa con los pueblos situados en la otra orilla del río.
+
+Hay quien afirma, con retranca, que el nombre de Pontedeume no significa "puente del Eume", sino "puente del diablo".`;
+                        } else if (p.id === 'p5') {
+                            return `El rey Alfonso X el Sabio concedió a Pontedeume en 1270 un privilegio: permitía a sus habitantes pescar libremente por el mar y los eximía de pagar impuestos de ningún tipo por todo lo que pescasen. Además de su protección, les concedió también un día de mercado cada mes y garantizó seguridad a todos los que acudieran.
+
+Esto supuso un gran impulso para la pesca y el comercio en Pontedeume, aunque también trajo peligros externos, como ataques de embarcaciones invasoras o incluso piratas (como Roxín Roxal, del que hablaremos después) que entraban en la ría por el golfo Ártabro.
+
+Uno de los hombres más aventureros de la villa compró un barco y decidió probar fortuna fuera de Pontedeume. Prometió a su novia —la joven más hermosa de la villa— que pronto volvería con dinero y se casarían, como siempre habían soñado.
+
+En su viaje llegó un día a la isla del Sal y, al besar su blanca arena gruesa, comprobó que era muy sabrosa. Entonces llenó su barco con aquella arena salada y la vendió por el mundo, haciéndose rico con su comercio.
+
+Cuando volvió a Pontedeume, mandó construir una lujosa casa y se casó con su novia. Pero poco después del matrimonio, el hombre volvió a marcharse en su barco para continuar su actividad comercial, y su esposa se quedó en la hermosa casa que habían construido.
+
+Por aquel entonces, el responsable del cuidado de la villa era un tirano que vivía en la fortaleza defensiva situada donde hoy se alza el torreón de los Andrade. Sentía una gran envidia hacia aquel hombre, que se había convertido en el más rico de la villa y en esposo de la muchacha más bella.
+
+Por esa razón, una noche, aprovechando la ausencia del marido, decidió secuestrar a la joven y encerrarla en su torre, donde intentó ultrajarla. Pero esa noche la luna dio paso a una fuerte tempestad que provocó unas olas tan feroces que derrumbaron la estancia de la fortaleza donde se encontraba el noble, causándole la muerte.
+
+Cuando el hombre regresó un mes después y le contaron cómo había sido liberada su querida esposa, decidió, como recompensa, verter toda la sal que quedaba en su isla en aquellas aguas del estuario y del puerto eumés y en la boca de la ría de Ares —pues aún eran dulces— para que tuvieran mejor sabor; por eso hoy son saladas.
+
+Asimismo, quiso quedarse para siempre en la villa, para cuidar personalmente de la hermosa joven y disfrutar de su compañía.`;
+                        } else if (p.id === 'p9') {
+                            return `Según antiguas leyendas, muchas ciudades anegadas quedaron sepultadas bajo las arenas, y las personas que se aventuran en sus aguas corren el riesgo de ser tragadas para aumentar el censo de sus habitantes. Cuentan en Pontedeume que algo semejante ocurrió con <strong>la Francesita</strong>.
+
+Sobre la mítica y legendaria ciudad sumergida —aquella en la que las tres damas causaban sensación entre los hombres del lugar— se construyó, a comienzos del siglo XX, el <strong>puente de hierro</strong> de Pontedeume. Fue durante su construcción cuando ocurrió esta historia:
+
+Una joven francesa que veraneaba todos los meses de agosto en Pontedeume solía lanzarse desde el malecón y nadar hasta la peña del Soldado. Era una magnífica nadadora, y los marineros que remendaban las redes en el muelle quedaban maravillados, pues su manera de jugar con las olas les recordaba a la de una sirena.
+
+Un día, mientras nadaba bajo el puente de hierro, perdió lo que ella consideraba su más preciado tesoro: un pendiente de oro que su novio eumés le había regalado. Aún no había llegado su joya al fondo del mar y ya pensaba en cómo recuperarla. Subió al primer pilar del puente, tomó aire y se sumergió en las profundidades. Pero todo fue inútil.
+
+La mítica ciudad sumergida bajo las arenas ya había atrapado un nuevo tesoro y no pensaba soltarlo. La Francesita luchó también por no ser arrastrada, pero aunque logró escapar, cuando emergió ya estaba muerta. Un marinero del puerto saltó enseguida a una barca y fue hacia ella, pero solo consiguió recoger su cuerpo.
+
+La Francesita fue enterrada en Pontedeume, y en su sepultura esculpieron en mármol su rostro, en el que faltaba el pendiente.`;
+                        } else if (p.id === 'p6') {
+                            return `Cuentan en Pontedeume que, en las profundidades marinas de la ría de Ares, vive desde hace muchos siglos la <strong>sirena de las Mirandas</strong>, llamada así porque cerca de esas peñas tiene su hogar, aunque se mueve por todo el golfo Ártabro. Dicen que alguna noche de luna llena se acerca hasta el puente de piedra para disfrutar de la hermosura de la villa, con mucho cuidado de que nadie la vea.
+
+Las sirenas son seres mitológicos que tienen el cuerpo —siempre desnudo— de una mujer hermosa, con largos cabellos y la cola de un pez en lugar de piernas. Llevan un espejo y un peine y viven en palacios de cristal llenos de riquezas bajo el mar. Además, atraen a los marineros con su voz, los seducen y los hacen ahogarse.
+
+La sirena de las Mirandas suele jugar con los delfines y acercarse a los pulpos, sepias y lubinas que se mueven por el golfo Ártabro, pero bien sabe que lo que nunca debe hacer es acercarse a los hombres, porque, si la descubrieran, no la dejarían en paz.
+
+Algunas noches de luminiscencia marina en agosto, muchos jóvenes acuden a las playas para bañarse a la luz de las estrellas. Una de esas noches de verano, a finales del siglo XIII, un hidalgo sorprendió a la sirena sentada en una roca mientras se bañaba en Centroña. Quedó tan impresionado por su belleza que le pidió que regresara al día siguiente.
+
+El hidalgo no tenía sosiego sin ella y le rogó que fuese a vivir con él. Así lo hizo la sirena de las Mirandas, y este, con mimo, delicadeza y mucha paciencia, fue quitándole una a una las escamas de su cola hasta que quedaron al descubierto dos hermosas y largas piernas de mujer. Los dos enamorados se casaron, tuvieron hijos y fueron muy felices juntos.
+
+Pero cuando su marido murió, la sirena dejó a sus hijos, ya mayores, y volvió a vivir en las aguas saladas de la ría de Ares, en el hermoso palacio que tenía bajo el mar, cerca de las islas Mirandas. No volvió a dejarse ver por ningún ser humano, aunque, ciertas noches de luminiscencia, algún viejo marinero cuenta haber escuchado, estremecido, la más hermosa y dulce canción de amor que venía del fondo del mar, entonada por la voz de la desdichada sirena.`;
+                        } else if (p.id === 'p7') {
+                            return `Cuentan en Pontedeume que, siendo señor <strong>Fernán Pérez de Andrade</strong> —o tal vez <strong>Nuño Freire de Andrade</strong>—, el alcaide del castillo, <strong>Pero López</strong>, famoso por su crueldad, se enamoró de una joven llamada <strong>Elvira</strong>, dama de compañía de la señora de Andrade, a la que servía en el torreón de Pontedeume. Ella rechazó su amor porque ya era novia de <strong>Mauro</strong>, el paje favorito de don Fernán —o don Nuño—. Incluso había rumores de que podía ser su hijo.
+
+El alcaide no podía soportar que Elvira prefiriese a Mauro antes que a él y ordenó a su único sirviente de confianza que secuestrase a los amantes y los encerrase en una dependencia de la torre del castillo de Andrade a la que nadie más podía acceder.
+
+Los señores de Pontedeume, alarmados por su desaparición, pasaron varios días buscándolos por la villa, las parroquias, las Fragas del Eume y los bosques de Breamo… pero todos sus intentos fracasaron.
+
+El alcaide convenció a don Fernán —o a don Nuño— de que tenía información que le permitía asegurar que los dos enamorados habían huido juntos lejos. Y aunque de vez en cuando subían a la azotea del torreón con la esperanza de que regresasen, confiados en las explicaciones de Pero López, aceptaron resignados que no los volverían a ver.
+
+Los dos jóvenes permanecieron largos meses encadenados en la oscura y solitaria celda donde los habían encerrado, y el sirviente del alcaide, que era mudo, les llevaba comida a diario. El único consuelo para los amantes era que estaban juntos.
+
+Un día, cuando el fiel sirviente les llevó la comida, el valiente Mauro aprovechó que se inclinaba para dejar el plato en el suelo y lo golpeó con tal fuerza que lo dejó mortalmente herido. Logró arrebatarle las llaves y liberarse, pero mientras iba a soltar a Elvira, el carcelero huyó con las llaves de la celda, dejándolos encerrados.
+
+El sirviente le contó por señas lo que había ocurrido y, cuando terminó su relato, murió. El alcaide, en venganza, decidió dejar morir de hambre a los amantes. Pasados varios meses y ya en su lecho de muerte, confesó al señor de Pontedeume lo que había urdido contra Mauro y Elvira, y cuando llegaron a la celda del castillo de Andrade, encontraron sus cadáveres abrazados.`;
+                        } else if (p.id === 'p8') {
+                            return `Después de que en 1270 Alfonso X el Sabio otorgara el privilegio que impulsó el poblamiento y la fundación de Pontedeume, la villa se fortificó para hacer frente a los ataques de embarcaciones invasoras o incluso de piratas que llegaban a la ría por el golfo Ártabro. Esta fue también la razón de la construcción, en Nogueirosa, de la fortaleza del castillo de Andrade.
+
+En tiempos de <strong>Fernán Pérez de Andrade</strong>, llegaron a Pontedeume unos piratas que pretendían saquear la villa. Uno de ellos, de pelo rojo y piel blanca como la nieve, robó además el corazón de una doncella que servía en el palacio de los Andrade y mantuvo con ella una apasionada relación amorosa.
+
+Sin embargo, la felicidad les duró poco, pues algunos días más tarde el pirata partió con sus compañeros por la ría de Ares, y la doncella dio a luz nueve meses después a un hermoso niño de pelo rojo y piel blanca como su padre, del que nunca más se volvió a saber nada.
+
+La joven, por su bondad y lealtad hacia los señores de Andrade, siguió sirviendo en el palacio. Su hijo, al que puso por nombre <strong>Roxín Roxal</strong>, heredó la fuerza y valentía de su padre y la lealtad de su madre. Cuando cumplió quince años, fue llamado como paje para servir en el castillo erguido sobre la peña Leboreiro, donde estableció su residencia.
+
+En aquel momento, en el primer cuarto del siglo XV, ya era señor de Pontedeume <strong>don Nuño Freire de Andrade</strong>, apodado "El Malo" por sus vasallos, quienes, debido a sus abusos, organizaron la primera revuelta irmandiña. Don Nuño tenía dos hijos varones y vivía con su única hija, <strong>Tareixa</strong>, en su palacio de Pontedeume.
+
+Tareixa era una muchacha muy alegre y hermosa. Le encantaba pasear a pie, a caballo o en barco por el río Eume y su fraga, el monte Breamo o las playas de la comarca. Pero, como también era algo inconsciente y rebelde, su padre decidió encomendar su cuidado y protección a Roxín Roxal, a quien consideraban un joven inteligente y valiente, merecedor de su confianza y simpatía.
+
+El paje acompañaba a Tareixa adondequiera que fuese y, poco a poco, entre ellos nació primero la amistad y luego el amor. Roxín Roxal, que siempre andaba alegre y feliz, comenzó a sentirse triste y melancólico cuando no estaba con Tareixa; pero, por el respeto que le tenía a don Nuño, no se atrevía a declararle su amor.
+
+Sin embargo, la joven, al ver la melancolía con que la miraba, comprendió que moría de amor por ella y le confesó que su sentimiento era correspondido. Pero su noviazgo duró muy poco, porque cuando el señor de Pontedeume supo lo que ocurría, prohibió al muchacho volver a ver a su hija y lo confinó a los alrededores del castillo de Andrade.
+
+Don Nuño, a pesar del gran afecto que le tenía, no podía tolerar que Roxín Roxal se casase con su hija, pues era de muy humilde condición. Ya había concertado el matrimonio de su hija con <strong>Enrique de Osorio</strong>, un hombre con la posición social que merecían los Andrade.
+
+Roxín Roxal obedeció escrupulosamente las órdenes de su señor, y este decidió recompensarlo por su fidelidad con una valiosa daga de oro en la que estaban grabadas las iniciales <strong>R. R.</strong>.
+El tiempo pasó: Enrique y Tareixa se casaron, Nuño siguió gobernando su feudo y Tareixa no volvió a saber nada de Roxín Roxal.
+
+En ese tiempo, un terrible jabalí —el más grande que jamás se había visto— empezó a atacar las tierras de los Andrade. Cansado de las quejas de sus campesinos, Nuño organizó una batida, encabezada por su yerno Enrique y su hija Tareixa. Acorralaron al jabalí, que, ya herido y furioso, descendió por el monte hasta llegar al puente, donde lo esperaban. Enrique de Osorio, al verlo a tiro, le lanzó una flecha, y el animal, enfurecido, atacó con fiereza a Tareixa, hiriéndola de muerte. El cobarde de su esposo, en lugar de defenderla, se arrojó al río para salvar su propia vida.
+
+Pocos días después, en el mismo puente, apareció muerto el jabalí, con la daga que Nuño había regalado a Roxín Roxal clavada en su garganta. Solo el señor de Andrade sabía que no podía pertenecer a otro caballero. Fue entonces cuando comprendió que impedir el matrimonio entre su hija y su vasallo había sido un gran error, pues este, aunque plebeyo, sin duda la habría defendido mejor que el noble don Enrique.`;
+                        } else {
+                            return 'Historia en español pendiente de redactar por el alumnado de 3º ESO.';
+                        }
+                    })(),
+                    audioNarrator: 'Alumno/a de 3º ESO',
+                    audioUrl: '#',  // Audio pendiente de grabar en español
+                    videoUrl: p.id === 'p1' ? 'https://archive.org/download/video-lenda-1-rio-eume/Video%20Lenda%201%20Rio%20Eume.ia.mp4' : '#'
+                },
+                en: {
+    title: p.id === 'p1' ? "Eume's source" :
+           p.id === 'p2' ? 'The three transparent ladies' :
+           p.id === 'p3' ? 'The passageways of the Eume' :
+           p.id === 'p4' ? 'The bridge of Pontedeume' :
+           p.id === 'p5' ? 'The salty waters' :
+           p.id === 'p6' ? 'The Mermaid of Las Mirandas' :
+p.id === 'p9' ? 'The drowned French girl' :
+p.id === 'p7' ? 'The castle of hunger' :
+'Roxín Roxal',
+    fullTitle: p.id === 'p1' ? "Eume's source" :
+              p.id === 'p2' ? 'The three transparent maidens and the ancient Celtic flooded city' :
+              p.id === 'p3' ? 'The passageways that connected the two banks of the Eume at its mouth' :
+              p.id === 'p4' ? 'The bridge of Pontedeume' :
+              p.id === 'p5' ? 'How the waters of the Eume estuary, the port of Pontedeume and the Ares estuary became salty' :
+              p.id === 'p6' ? 'The Mermaid of Las Mirandas' :
+p.id === 'p9' ? 'The little French girl who drowned in Pontedeume' :
+p.id === 'p7' ? 'The castle of hunger' :
+'Roxín Roxal',
+              subtitle: p.id === 'p1' ? 'Race to the sea' : p.id === 'p2' ? 'The flooding spell' : p.id === 'p3' ? 'Watched by the devil' : p.id === 'p4' ? "The devil's bridge" : p.id === 'p5' ? 'Love and salt in the estuary' : p.id === 'p6' ? 'The love between the mermaid and the nobleman' : p.id === 'p9' ? 'The lost earring' : p.id === 'p7' ? 'Love in chains' : 'The pirate Roxín',
+                  story: (() => {
+                        if (p.id === 'p1') {
+                            return `A legend says that a long time ago, three springs were born in the Xistral Mountains and they felt the call of the sea. The three of them wanted to get to the sea as soon as possible because they would receive a great treasure, so they decided to set off together in order to share it. Thus, they started their journey together towards the sea, becoming the rivers Sor, Landro and Eume.
+
+When they had already gone down for a long while and when the night was about to fall, the three rivers felt they were getting really tired and agreed on taking a short nap before continuing their journey. They promised that the first one to wake up would wake the others to continue their journey together towards the sea.
+
+However, Antubel, the Celtic goddess of the sleeping waters, the shadows and the night, woke Sor up, tempting it to leave quietly towards the Cantabrian Sea without its mates. Sor, blinded by greed to arrive first, left quickly. When Sor had left, she did the same thing with the river Landro, which also fell into the temptation of the Celtic goddess and set off quietly to meet the Cantabrian Sea.
+
+The next morning, when the Eume river woke up and saw that the other rivers had deceived it, he asked Endovélico (the ancient god of fire and light) for help and the latter helped it arrive as soon as possible. The river Eume, furious, followed immediately Endovélico's point of light towards the Artabrian gulf to avoid coinciding in the Cantabrian Sea with its disloyal rivals. He travelled quickly and tirelessly for 80km, jumping over everything he encountered.
+
+The Eume was the first of the three to reach the sea, in Pontedeume, leaving behind beautiful landscapes such as "FRAGAS DO EUME" and receiving a great amount of fish and other extraordinary creatures as a reward. Among these creatures, we can highlight the mermaids, who are also protagonists of some of the stories in this route.`;
+                        } else if (p.id === 'p9') {
+                            return `According to ancient legends, many flooded cities remained buried under the sand, and the people that dared to enter their waters were at risk of being swallowed in order to increase the number of their inhabitants. Rumour has it in Pontedeume that something similar happened to the little French girl.
+
+Above the mythical and legendary underwater city - the one we mentioned when talking about those 3 ladies that caused a sensation among local men - the iron bridge from Pontedeume was built at the beginning of the 20th century. During its building process this story took place:
+
+A young French girl, who spent every summer holiday in August in Pontedeume, used to dive from the pier and swim to the rock of the Soldier. She was a skilful swimmer and the sailors mending the fishing nets in the harbour were impressed since her way of playing with the waves reminded them of a mermaid.
+
+One day, while she was swimming under the iron bridge, she lost her most valuable belonging: a golden earring that her boyfriend from Pontedeume had given her. The jewel had not even reached the seafloor when she was already thinking of how to take it back. She went up the first pillar of the bridge, took a deep breath and dived into the sea. But it was useless.
+
+The mythical underwater city had already caught a new treasure and was not giving it back. The little French girl fought as well trying not to be drawn, but even though she managed to escape, when she arrived at the surface she was dead. A sailor from the harbour immediately took a boat and went to grab her but only her dead body was left.
+
+The little French girl was buried in Pontedeume, and in her grave they carved her face with the missing earring in marble.`;
+                        } else if (p.id === 'p6') {
+                            return `As the story goes in Pontedeume, the mermaid from the Mirandas has lived in the depths of the water in the Ares ría for many centuries. She is called like that because she lives close to those rocks even though she moves all around the Artabrian gulf. It is said that on some full-moon nights she approaches the stone bridge to enjoy the beauty of the town, always careful that no one will see her.
+
+Mermaids are mythological beings that have the body - always naked - of a beautiful woman, with long hair and a fish tail instead of legs. They carry a mirror and a comb and they live in crystal palaces under the sea which are full of wealth. Moreover, they lure the sailors with their voice, then they seduce them and make them drown.
+
+The mermaid from the Mirandas usually plays with dolphins and gets closer to octopuses, squid and sea basses that also swim in the Artabrian gulf. But she clearly knows she mustn't get close to men, since, in case of being discovered, she wouldn't be left alone.
+
+Some nights of sea luminescence in August, a lot of young people go to the beach to swim under the light of the stars. One of those summer nights, at the end of the 13th century, a nobleman caught the mermaid sitting on a rock as he was bathing in Centroña. He was so impressed by her beauty that he asked her to come back the next day.
+
+The nobleman could find no rest without her and asked her to go and live with him. So did the mermaid of the Mirandas, and he removed the scales in her tail one by one with loving care, patience and delicacy until two beautiful and long female legs could be seen. They fell in love and got married. They had children and lived happily ever after.
+
+But when the husband died, the mermaid left her grown-up children and went back to live in the salty waters of the Ares ría, in the beautiful palace she had under the sea, near the Mirandas Islands. She was never seen again but, during certain nights of sea luminescence, some old sailors say that they have heard the most beautiful and sweet love song coming from the ocean floor, sung by the voice of the miserable mermaid.`;
+                        } else {
+                            return 'Story in English to be written by 9th grade students.';
+                        }
+                    })(),
+    audioNarrator: 'Student from 9th grade',
+    audioUrl: '#',
+    videoUrl: '#'
+},
+                fr: {
+                    title: p.id === 'p1' ? 'La naissance de l\'Eume' :
+                           p.id === 'p2' ? 'Les trois dames transparentes' :
+                           p.id === 'p3' ? 'Les passages de l\'Eume' :
+                           p.id === 'p4' ? 'Le pont de Pontedeume' :
+                           p.id === 'p5' ? 'Les eaux salées' :
+                           p.id === 'p6' ? 'La Sirène de Las Mirandas' :
+p.id === 'p9' ? 'La Française noyée' :
+p.id === 'p7' ? 'Le château de la faim' :
+'Roxín Roxal',
+                    fullTitle: p.id === 'p1' ? 'La naissance de la rivière Eume' :
+                              p.id === 'p2' ? 'Les trois demoiselles transparentes et l\'antique village celtique soulagé' :
+                              p.id === 'p3' ? 'Les passerelles qui connectaient les deux bords de la rivière Eume près de son embouchure' :
+                              p.id === 'p4' ? 'Le pont de Pontedeume' :
+                              p.id === 'p5' ? 'Comment les eaux du port de Pontedeume et d\'Ares ont été salées' :
+                              p.id === 'p6' ? 'La Sirène de Las Mirandas' :
+p.id === 'p9' ? 'La petite Française qui s\'est noyée à Pontedeume' :
+p.id === 'p7' ? 'Le château de la faim' :
+'Roxín Roxal',
+                              subtitle: p.id === 'p1' ? 'Course vers la mer' : p.id === 'p2' ? 'Le sortilège noyé' : p.id === 'p3' ? 'Surveillés par le diable' : p.id === 'p4' ? 'Le pont du diable' : p.id === 'p5' ? 'Amour et sel dans la ria' : p.id === 'p6' ? 'L\'amour entre la sirène et le noble' : p.id === 'p9' ? 'La boucle d\'oreille perdue' : p.id === 'p7' ? 'Amour enchaîné' : 'Le pirate Roxín',
+                    story: (() => {
+                        if (p.id === 'p1') {
+                            return `La légende raconte qu'il y a très longtemps, trois sources sont nées dans la "Serra do Xistral" et ont ressenti l'appel de la mer. Toutes les trois voulaient aller à la mer le plus tôt possible car, de cette façon, elles recevraient un grand trésor, alors elles décidèrent de partir ensemble pour le partager. Ainsi, les trois commencèrent leur voyage ensemble vers la mer, em devennant les rivières Sor, Lando et Eume.
+
+Alors qu'elles avaient déjà fait une bonne descente et que la nuit commençait à tomber, les trois rivières sentirent que leurs forces manquaient et ils convinrent qu'elles feraient une petite sieste avant de reprendre leur promenade et que la première à se réveiller avertirait les autres pour continuer le voyage ensemble vers la mer.
+
+Néanmoins, Antubel, la déesse celtique des eaux endormies, des ombres et de la nuit, apparut et réveilla Sor, en lui disant de partir seule, tranquillement sans ses compagnons vers la mer Cantabrique. Et Sor, aveuglé par l'avidité d'atteindre la ligne d'arrivée en premier lieu, partit sans attendre. Lorsque la rivière Sor partit, Antubel fit de même avec Landro qui tomba également dans la tentation de la déesse celtique et quitta Silandeiro pour embrasser la mer Cantabrique.
+
+Le lendemain matin, lorsque l'Eume se réveilla et vit que les autres rivières l'avaient trompé et étaient déjà parties, il demanda l'aide d'Endovelicus, le dieu ancestral du feu et de la lumière, et celui-ci l'aida à arriver le plus tôt possible. L'Eume, enragé, suivit la lumière d'Endovélico vers le Golfe d'Artabro, de manière rapide et sans repos, pendant 80 km, sautant par-dessus tout ce qui se présentait devant lui.
+
+L'Eume a été le premier des trois à atteindre la mer, d'atteindre Pontedeume, en laissant derrière lui de beaux paysages comme les Fragas do Eume et recevant ainsi comme trésor beaucoup de poissons et de créatures extraordinaires, parmi lesquelles nous pouvons trouver les sirènes, qui seront également les protagonistes de cette itinéraire.`;
+                        } else if (p.id === 'p2') {
+                            return `Il y a très longtemps, à l'embouchure de l'Eume, du côté du "Monte Breamo", nos ancêtres avaient construit une ville qui s'enrichissait chaque jour, grâce à son agriculture et son élevage vigoureux et à la pêche abondante des voisins.
+
+Un jour, elles arrivèrent dans l'ancien et prospère village, trois belles dames transparentes aux cheveux blonds qui se coiffaient avec trois peignes dorés précieux et magiques et qui ensorcelèrent de nombreux hommes locaux. C'étaient des êtres surnaturels, qui faisaient rire les jeunes hommes les plus intelligents de la ville.
+
+Les trois dames transparentes ne montraient leur beauté qu'après le coucher du soleil et les hommes affluaient nuit après nuit dans leur palais où se célébraient de véritables orgies et bacchanales. Les luttes étaient constantes entre eux et la prospérité du village était déjà en danger.
+
+Les membres du Conseil des Anciens étaient sérieusement inquiets, alors ils parlèrent au druide, qui leur dit que ces demoiselles étaient des fées enchantées qui ne feraient qu'apporter la destruction de la ville. Il ordonna au peuple de se rassembler sous les forts et d'y rester trois jours. Puis il grimpa au sommet du mont Breamo et jeta un sort. Un peu plus tard, il s'est également réfugié dans un fort et immédiatement il a commencé à pleuvoir et cette pluie ne s'est arrêté que trois jours plus tard.
+
+La ville a été inondée et les jeunes gens qui n'ont pas tenu compte de l'avertissement du Conseil des Anciens se sont noyés. Seuls ceux qui se sont cachés dans le fort avec leurs familles ont sauvé la vie.
+
+En fait, il n'y a rien de certain sur ces trois femmes transparentes, même si certains disent qu'elles sont devenues des sirènes et n'ont pas quitté notre village ; l'une d'entre elles vit au fond de la mer, près de Macuca ; une autre, dans le Mourón, et la troisième dans la zone des Mirandas (dont nous parlerons plus tard).`;
+                        } else if (p.id === 'p3') {
+                            return `Les découvertes romaines trouvées à Zopazos et dans d'autres lieux voisins semblent indiquer que déjà à l'époque des châteaux, il existait une sorte de pont pour communiquer, à marée basse, les populations d'un et d'autre côté.
+
+Il existe une légende selon laquelle nos ancêtres, autrefois, construisaient des passerelles en pierre, recouvertes de bois, pour pouvoir traverser à pied, à marée basse, d'un côté à l'autre de l'embouchure de l'Eume. Le passage à marée haute ne pouvait se faire que sur un petit navire.
+
+Mais que ce soit à cause de la détérioration des pierres et du bois, à cause des inondations fréquentes ou parce qu'ils traversaient souvent avec de lourdes charges, les anciens habitants des rives de l'Eume glissaient parfois en tombant à la mer.
+
+Comme beaucoup ne savaient pas nager, le Diable les guettait pour leur offrir son aide toujours intéressée. Certains ont perdu la vie pour avoir refusé l'offre satanique, mais nombreux sont ceux qui lui ont donné leur âme pour se sauver.`;
+                        } else if (p.id === 'p4') {
+                            return `Dans le dernier quart du XIVe siècle, la belle Minla, fille du premier seigneur de Pontedeume, Fernán Pérez de Andrade, vivait dans le palais que ses parents possédaient dans la ville et tous les jours, au coucher du soleil, pour ne pas être vue, elle se rendait au bord de la rivière pour attendre Ledán, un paysan fort et robuste de Cabanas qui traversait la rivière dans le bateau d'un ami marin pour être avec sa bien-aimée.
+
+Un après-midi, une grande tempête se leva soudainement. Le marin ne voulait pas l'emmener parce qu'il considérait cela dangereux et Ledán, un nageur expert, sachant que Minla l'attendait de l'autre côté de la rivière, décida de nager jusqu'à Pontedeume.
+
+Malgré tout, et malgré son talent, il s'est déjà noyé à Cabanas. Minla de a vu son bien-aimé mourir sous ses yeux sans pouvoir l'aider. C'est à ce moment que le diable, attentif au malheur des autres, s'approche de la dame et lui propose son aide :
+
+- Si tu me donnes ton âme, à l'aube je t'aurai fait un pont !
+
+La jeune femme, désespérée de donner à Ledán le dernier baiser d'amour, accepta. A l'aube, il restait encore une arche à terminer. Mais comme le pont était presque fini, Minla a pu traverser et dire au revoir à Ledán en sautant un peu par-dessus l'arc inachevé.
+
+Le seigneur de Pontedeume, lorsque sa fille lui raconta ce qui s'était passé, décida d'achever la dernière arche du pont qui reliait la ville par voie terrestre aux autres villes situées de l'autre côté de la rivière.
+
+Certains prétendent, à contrecœur, que le nom Pontedeume ne signifie pas "pont de l'Eume", mais "pont du diable".`;
+                        } else if (p.id === 'p5') {
+                            return `Le roi Alphonse X le Sage accorda à Pontedeume un privilège en 1270 : il permit à ses habitants de pêcher librement en mer, c'est-à-dire, sans payer de taxes. En plus de sa protection, il leur accordait également un jour de marché chaque mois.
+
+Cela signifiait une très grande impulsion pour la pêche et le commerce à Pontedeume, même si cela introduisait également des dangers extérieurs, tels que des attaques de navires ou même de pirates (comme Roxín Roxal, dont nous parlerons plus tard).
+
+L'un des hommes les plus aventureux de la ville acheta un bateau et décida de tenter fortune à l'extérieur de Pontedeume et promit à sa petite amie (la plus belle fille de la ville) qu'il reviendrait bientôt avec de l'argent et qu'ils se marieraient, comme ils l'avaient toujours voulu.
+
+Au cours de son voyage, il arriva un jour sur l'île de Sal et il remplit son navire de ce sable salé et partit le vendre dans le monde entier, devenant ainsi riche.
+
+De retour à Pontedeume, il y fit construire une luxueuse maison et épousa son épouse. Mais peu de temps après le mariage, l'homme est reparti sur son bateau pour poursuivre son activité commerciale, et sa femme est restée dans la belle maison qu'ils avaient construite.
+
+À cette époque, le responsable de la gestion de la ville était un tyran qui vivait dans la forteresse défensive située là où se trouve aujourd'hui le château d'Andrade. Il était très jaloux de celui qui était devenu l'homme le plus riche de la ville.
+
+C'est pour cette raison qu'une nuit, profitant de l'absence de son mari, ce tyran décide d'enlever la jeune fille dans sa tour, où elle l'emprisonne pour la torturer et la violer. Mais cette nuit-là, la lune a cédé la place à une forte tempête qui a provoqué des vagues inhabituelles et violentes qui ont fait tomber la pièce de la forteresse où se trouvait le noble tyran et qui ont causé sa mort.
+
+Lorsque l'homme revint un mois plus tard et apprit comment son épouse bien-aimée avait été libérée, il décida, en récompense, de verser tout le sel qui restait de son île dans les eaux du port d'Esteiro et de Pontedeume et davantage dans l'embouchure de la rivière d'Arès, parce qu'ils étaient encore sucrés; c'est pourquoi aujourd'hui elles sont salées.
+
+De plus, il voulait rester au village pour toujours pour prendre personnellement soin de la belle fille et profiter de sa compagnie.`;
+                        } else if (p.id === 'p7') {
+                            return `On raconte à Pontedeume que, étant M. Fernán Pérez de Andrade -ou Nuno Freire de Andrade-, Pero Lopez, le gardien du château, est tombé amoureux d'une fille nommée Elvira, maîtresse de M. de Andrade.
+
+Le gardien ne put empêcher Elvira de préférer Mauro (l'un des pages de M. Fernán Pérez de Andrade) et commence à kidnapper le couple des deux amants et les enfermer dans une dépendance de la tour du château d'Andrade à laquelle personne d'autre ne pouvait accéder.
+
+Les seigneurs de Pontedeume, alarmés par la disparition, cherchèrent pendant plusieurs jours, dans la ville, dans les paroisses, à Fragas do Eume, dans les forêts de Breamo... mais toutes leurs tentatives étaient un échec.
+
+Le gardien a convaincu Don Fernán - ou Don Nuno du fait que les amants s'étaient enfuis ensemble très loin et qu'ils devraient accepter avec résignation de ne plus les revoir.
+
+Les deux garçons restèrent enchaînés pendant de longs mois dans la cellule sombre et solitaire dans laquelle ils avaient été enfermés et le domestique du gardien, muet, leur apportait chaque jour à manger. La seule consolation pour les amoureux était qu'ils étaient ensemble.
+
+Un jour, alors que le fidèle serviteur leur apportait le déjeuner, Mauro essaye d'échapper et de libérer aussi Elvira. Le gardien, pour se venger, décida de laisser les amants mourir de faim. Après plusieurs mois et déjà sur son lit de mort, le gardien avoua tout à M. d'Andrade Elvira et lorsqu'ils arrivèrent à la cellule du château d'Andrade, ils trouvèrent leurs cadavres.`;
+                        } else if (p.id === 'p9') {
+                            return `Selon d'anciennes légendes, de nombreuses villes inondées étaient enterrées sous le sable et les gens qui s'aventuraient dans leurs eaux risquaient d'être engloutis. On dit à Pontedeume que quelque chose de similaire est arrivé à "Francesiña".
+
+Une Française qui passait ses étés chaque mois d'août à Pontedeume avait l'habitude de se jeter du mur et de nager. C'était une magnifique nageuse et les marins qui la voyaient étaient émerveillés, car sa façon de jouer avec les vagues leur rappelait une sirène.
+
+Un jour, alors qu'elle nageait sous le pont de fer, elle perdit ce qu'elle pensait être son trésor le plus précieux (une boucle d'oreille en or que son petit ami lui avait offerte). Son bijou n'avait pas encore atteint le fond de la mer et elle réfléchissait à la manière de le récupérer. Elle essaya plusieurs façons... Mais tout cela fut en vain.
+
+La ville mythique engloutie sous les sables avait déjà emporté un nouveau trésor. La jeune Française est également morte à cause d'avoir essayé de trouver la boucle d'oreille. Un marin a rapidement sauté à bord d'un bateau et s'est dirigé vers elle mais n'a réussi qu'à récupérer son corps.
+
+La Française a été enterrée à Pontedeume et dans sa tombe son visage était sculpté dans le marbre, dans lequel manquait la boucle d'oreille.`;
+                        } else if (p.id === 'p8') {
+                            return `Après qu'en 1270 Afonso X le Sage eut accordé le privilège pour la fondation de Pontedeume, la ville fut fortifiée pour faire face aux attaques des navires ou même des pirates qui arrivaient à l'estuaire par le golfe d'Ártabro. C'est également pour cette raison que fut construit le château-forteresse d'Andrade à Nogueirosa.
+
+À l'époque de Fernán Pérez de Andrade, des pirates arrivèrent à Pontedeume avec l'intention de mettre la ville à sac. L'un d'eux, aux cheveux violets et à la peau blanche comme la neige, a également volé le cœur d'une des jeunes filles qui servaient au palais d'Andrade et avait une histoire d'amour passionnée avec elle.
+
+Néanmoins, leur bonheur ne dura pas longtemps, car quelques jours plus tard le pirate partit dans son bateau et la jeune fille donna naissance neuf mois plus tard à un beau fils aux cheveux violets et à la peau blanche comme son père. L'enfant, à l'âge de quinze ans, il fut appelé comme page pour servir dans le château érigé sur la colline de Leboreiro, où il s'installa.
+
+A cette époque, Don Nuno Freire de Andrade était déjà seigneur de Pontedeume. Il vivait avec sa fille unique, Tareixa, dans son palais de Pontedeume.
+
+Tareixa était une fille très joyeuse et belle et elle aimait se promener, à cheval ou en bateau, le long de la rivière Eume. Pourtant, elle était aussi un peu inconscient et indisciplinée, c'est pourquoi son père décida de confier ses soins et sa protection à Roxín Roxal, parce qu'il le considérait comme un garçon intelligent et courageux.
+
+Roxín Roxal, qui était toujours heureux et content, commençait à se sentir triste et mourant quand il n'était pas avec Tareixa, mais à cause de la considération qu'il avait pour Don Nuno, il n'osait pas déclarer son amour à la jeune fille.
+
+Au cours du temps, on a vu que le sentiment était réciproque. Par contre, Don Nuno, malgré la grande estime qu'il avait pour lui, ne pouvait pas tolérer que Roxín Roxal épousait sa fille, car il avait déjà arrangé le mariage de sa fille avec Henrique de Osorio, un homme avec la position sociale que méritaient les Andrades.
+
+À cette époque, un terrible sanglier, le plus gros jamais vu, commença à attaquer les terres des Andrades. Quand Henrique de Osorio vit qu'il avait tiré dessus, il lui décocha une flèche et l'animal, furieux, attaqua Tareix, la blessant à mort. Et le lâche de son mari, au lieu de la défendre, se jeta dans la rivière pour sauver sa vie.
+
+Quelques jours plus tard, sur le même pont, le sanglier apparut mort, coincé dans la gorge avec le poignard que Don Nuno avait donné à Roxín Roxal. Seuls ceux d'Andrade savaient que cela ne pouvait pas provenir d'un autre monsieur. C'est alors qu'il comprit qu'empêcher le mariage entre sa fille et le vassal avait été une grave erreur, car lui, aurait mieux défendu sa fille que le noble Don Henrique.`;
+                                                } else if (p.id === 'p6') {
+                            return `On raconte à Pontedeume que, dans les profondeurs de l'estuaire d'Ares, vit depuis de nombreux siècles la sirène des Mirandas, ainsi appelée car c'est près de ces rochers qu'elle a sa demeure, bien qu'elle se déplace dans tout le golfe Ártabro. On dit que certaines nuits de pleine lune, elle s'approche du pont de pierre pour profiter de la beauté de la ville, en prenant bien soin que personne ne la voie.
+
+Les sirènes sont des êtres mythologiques qui ont le corps, toujours nu, d'une belle femme, avec de longs cheveux et une queue de poisson au lieu de jambes. Elles portent un miroir et un peigne et vivent dans des palais de cristal remplis de richesses sous la mer. De plus, elles attirent les marins avec leur voix, les séduisent et les font se noyer.
+
+La sirène des Mirandas joue souvent avec les dauphins et s'approche des poulpes, des seiches et des bars qui se déplacent dans le golfe Ártabro, mais elle sait très bien que ce qu'elle ne pourra jamais faire, c'est s'approcher des hommes car sinon, ils ne la laisseront pas tranquille.
+
+Certaines nuits de luminescence marine en août, de nombreux jeunes se rendent sur les plages pour se baigner à la lumière des étoiles. Une de ces nuits d'été, à la fin du XIIIe siècle, un noble surprit la sirène assise sur un rocher alors qu'elle se baignait à Centroña. Il fut tellement frappé par sa beauté qu'il lui demanda de revenir le lendemain.
+
+Le noble n'avait pas de paix sans elle et la supplia d'aller vivre avec lui. Ainsi fit la sirène des Mirandas, et lui, avec soin, délicatesse et beaucoup de patience, lui retira les écailles de sa queue une à une jusqu'à ce que deux belles et longues jambes de femme soient exposées. Les deux amoureux se marièrent, eurent des enfants et furent très heureux ensemble.
+
+Mais à la mort de son mari, la sirène quitta ses enfants déjà grands et retourna vivre dans les eaux salées de l'estuaire d'Ares, dans le magnifique palais qu'elle possédait sous la mer, près des îles Mirandas. Aucun humain ne la revit jamais, même si, certaines nuits de luminescence, un vieux marin raconte avoir entendu, avec frémissement, la plus belle et la plus douce chanson d'amour venue du fond de la mer, chantée par la voix de la pauvre sirène.`;
+                        } else {
+                            return 'Histoire en français à rédiger par les élèves de 3ème.';
+                        }
+                    })(),
+                    audioNarrator: 'Élève de 3ème',
+                    audioUrl: p.id === 'p1' ? 'https://archive.org/download/la-naissance-de-la-riviere-eume/La%20naissance%20de%20la%20rivi%C3%A8re%20Eume.m4a' :
+                              p.id === 'p2' ? 'https://archive.org/download/les-trois-demoisselles-transparentes-et-lantique-village-celtique-soulage/Les%20trois%20demoisselles%20transparentes%20et%20l%E2%80%99antique%20village%20celtique%20soulag%C3%A9.m4a' :
+                              p.id === 'p3' ? 'https://archive.org/download/les-passerelles-qui-connectaient-les-deux-bords-de-la-riviere-eume-pres-de-son-embouchure/Les%20passerelles%20qui%20connectaient%20les%20deux%20bords%20de%20la%20rivi%C3%A8re%20Eume%20pr%C3%A8s%20de%20son%20embouchure.m4a' :
+                              p.id === 'p4' ? 'https://archive.org/download/le-pont-de-pontedeume/Le%20pont%20de%20Pontedeume.m4a' :
+                              p.id === 'p5' ? 'https://archive.org/download/comment-les-eaux-du-port-de-pontedeume-et-d-ares-ont-ete-salees/Comment%20les%20eaux%20du%20port%20de%20Pontedeume%20et%20d%27Ares%20ont%20%C3%A9t%C3%A9%20sal%C3%A9es.m4a' :
+                              p.id === 'p7' ? 'https://archive.org/download/le-chateau-de-la-faim/Le%20ch%C3%A2teau%20de%20la%20faim.m4a' :
+                              p.id === 'p8' ? 'https://archive.org/download/roxin-roxal/Rox%C3%ADn%20Roxal.m4a' :
+                              '#',
+                    videoUrl: '#'
+                }
+            };
+        });
+
+        // Actualizar todos los textos de la interfaz según el idioma
+function updateInterfaceTexts() {
+    // Pantalla de idiomas
+    const langTitle = document.getElementById('languageTitle');
+    if (langTitle) langTitle.innerHTML = t('languageTitle');
+    
+    const langFooter = document.getElementById('languageFooter');
+    if (langFooter) langFooter.innerHTML = `<i class="fas fa-star"></i> ${t('languageFooter')} <i class="fas fa-star"></i>`;
+    
+    // Pantalla de mapa
+    const mapTitle = document.getElementById('mapHeaderTitle');
+    if (mapTitle) mapTitle.innerHTML = `<i class="fas fa-map"></i> ${t('mapTitle')}`;
+    
+    const mapFooter = document.getElementById('mapFooter');
+    if (mapFooter) mapFooter.innerHTML = `<i class="fas fa-feather"></i> ${t('footerText')} <i class="fas fa-feather"></i>`;
+    
+    // Pantalla de detalle
+    const backBtn = document.getElementById('detailBackBtn');
+const backText = document.getElementById('detailBackText');
+if (backBtn && backText) backText.textContent = t('back');
+    
+    // Alerta
+    const alertBtnText = document.getElementById('alertBtnText');
+    if (alertBtnText) {
+    let btnText = t('viewStory');
+    // Versión corta para el botón de la alerta
+    if (btnText === 'Ver historia') btnText = 'Ver';
+    else if (btnText === 'View story') btnText = 'View';
+    else if (btnText === 'Voir l\'histoire') btnText = 'Voir';
+    alertBtnText.textContent = btnText;
+}
+    const alertTitle = document.getElementById('alertTitle');
+    if (alertTitle) alertTitle.textContent = `📍 ${t('nearPoint')}`;
+    const alertDesc = document.getElementById('alertDesc');
+    if (alertDesc) alertDesc.textContent = t('clickToDiscover');
+}
+
+// Función para centrar el mapa en la ubicación del usuario
+function toggleFollowUser() {
+    const btn = document.getElementById('centerLocationBtn');
+    
+    if (isFollowingUser) {
+    // DESACTIVAR seguimiento
+    isFollowingUser = false;
+    btn.style.transition = 'none';
+    btn.style.color = '';
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.style.boxShadow = '';
+    // Forzar reflow y restaurar transición después de un instante
+    void btn.offsetWidth; // trigger reflow para aplicar style.transition = 'none' instantáneamente
+    btn.style.transition = '';
+    } else {
+        // ACTIVAR seguimiento
+        if (userCoordsActual) {
+            map.flyTo(userCoordsActual, 18, { duration: 1.2 });
+            isFollowingUser = true;
+            btn.style.color = '#3b82f6';
+            btn.style.background = 'rgba(59, 130, 246, 0.2)';
+            btn.style.borderColor = 'rgba(59, 130, 246, 0.5)';
+            btn.style.boxShadow = '0 0 15px rgba(59, 130, 246, 0.4)';
+        } else {
+            alert(t('locationWait'));
+        }
+    }
+}
+
+
+// Indicador de dirección cuando el usuario está fuera del mapa
+function updateDirectionIndicator(userCoords) {
+    const indicator = document.getElementById('userDirectionIndicator');
+    const arrow = document.getElementById('directionArrow');
+    if (!indicator || !arrow || !map) return;
+    // Guardar el ángulo anterior para evitar giros de 360°
+if (!arrow.dataset.lastAngle) arrow.dataset.lastAngle = 0;
+let lastAngle = parseFloat(arrow.dataset.lastAngle);
+    
+    const mapBounds = map.getBounds();
+    const userLatLng = L.latLng(userCoords[0], userCoords[1]);
+    
+    // Si el usuario está dentro de los límites del mapa, ocultar indicador
+    if (mapBounds.contains(userLatLng)) {
+        indicator.style.display = 'none';
+        return;
+    }
+    
+    // Calcular el punto más cercano en el borde del mapa
+    const bounds = mapBounds;
+    const lat = userCoords[0];
+    const lng = userCoords[1];
+    
+    // Acotar coordenadas al borde del mapa
+    const clampedLat = Math.max(bounds.getSouth(), Math.min(bounds.getNorth(), lat));
+    const clampedLng = Math.max(bounds.getWest(), Math.min(bounds.getEast(), lng));
+    
+    // Convertir a punto en el contenedor del mapa
+    const point = map.latLngToContainerPoint(L.latLng(clampedLat, clampedLng));
+    const mapContainer = map.getContainer();
+    
+    // Posicionar el indicador
+    indicator.style.display = 'flex';
+    indicator.style.position = 'absolute';
+    indicator.style.left = Math.max(16, Math.min(mapContainer.clientWidth - 48, point.x - 16)) + 'px';
+    indicator.style.top = Math.max(16, Math.min(mapContainer.clientHeight - 48, point.y - 16)) + 'px';
+    
+    // Calcular ángulo hacia la ubicación real
+    const angle = Math.atan2(
+    userCoords[1] - clampedLng,
+    userCoords[0] - clampedLat
+) * (180 / Math.PI);
+    
+    // Corregir el ángulo para evitar giros de más de 180°
+let delta = angle - lastAngle;
+if (delta > 180) delta -= 360;
+if (delta < -180) delta += 360;
+const smoothAngle = lastAngle + delta;
+
+arrow.style.transform = `rotate(${smoothAngle}deg)`;
+arrow.dataset.lastAngle = smoothAngle;
+
+    // Evitar giro brusco: forzar transición corta solo para este cambio
+arrow.style.transition = 'transform 0.2s ease';
+arrow.style.display = 'block';
+}
+
+// Hacer clic/tocar en la flecha azul centra el mapa en tu ubicación (sin seguimiento)
+function setupDirectionClick() {
+    const indicator = document.getElementById('userDirectionIndicator');
+    if (!indicator) return;
+    
+    indicator.style.cursor = 'pointer';
+    indicator.style.pointerEvents = 'auto';
+    
+    const centerToUser = function(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        if (userCoordsActual) {
+            map.setView(userCoordsActual, 18);
+        } else {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const coords = [pos.coords.latitude, pos.coords.longitude];
+                        userCoordsActual = coords;
+                        map.setView(coords, 18);
+                    },
+                    (err) => {
+                        alert(t('locationWait') || 'No se pudo obtener tu ubicación.');
+                    }
+                );
+            } else {
+                alert('Tu navegador no soporta geolocalización.');
+            }
+        }
+    };
+    
+    indicator.addEventListener('touchstart', centerToUser, { passive: false });
+    indicator.addEventListener('click', centerToUser);
+}
+
+        // Función para centrar el mapa en un punto específico
+        function centerOnPoi(poiId) {
+            const punto = puntos.find(p => p.id === poiId);
+            if (punto && map) {
+                map.setView(punto.coords, 18);
+            }
+        }
+
+        // Hacer funciones globales
+        window.selectLanguage = function(lang) {
+    currentLanguage = lang;
+    localStorage.setItem('preferredLanguage', lang);
+    
+    // Actualizar textos de la interfaz
+    updateInterfaceTexts();
+    
+    
+// Actualizar popups del mapa
+updateMapPopups();
+   
+    const detailScreen = document.getElementById('screenPoiDetail');
+    if (detailScreen.classList.contains('active') && currentPoi) {
+        updatePoiDetailLanguage();
+    } else {
+        renderPoiList();
+    }
+   
+    showMapScreen();
+};
+
+        window.showLanguageScreen = function() {
+        window.scrollTo(0, 0);
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screenLanguage').classList.add('active');
+        };
+
+        window.showMapScreen = function() {
+    window.scrollTo(0, 0);
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screenMap').classList.add('active');
+    renderPoiList();
+   
+    if (!map) {
+        setTimeout(initMap, 200);
+    } else {
+        map.invalidateSize();
+    }
+};
+
+        window.showPoiDetail = function(poiId) {
+            currentPoi = poiId;
+            renderPoiDetail(poiId);
+           
+           window.scrollTo(0, 0);
+           
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screenPoiDetail').classList.add('active');
+           
+            document.getElementById('proximityAlert').classList.remove('show');
+        };
+
+        window.switchTab = function(event, tab) {
+    // PARAR cualquier reproducción activa
+    document.querySelectorAll('audio').forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+    });
+    
+    document.querySelectorAll('video').forEach(video => {
+        video.pause();
+        video.currentTime = 0;
+    });
+    
+    // Cambiar pestaña activa
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.closest('.tab-btn').classList.add('active');
+    
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
+
+    const copyBtn = document.getElementById('copyStoryHeaderBtn');
+    if (copyBtn) {
+        copyBtn.style.display = (tab === 'text') ? '' : 'none';
+    }
+};
+
+        function updateUILanguage() {
+    renderPoiList();
+}
+
+// Actualizar los popups del mapa con el nuevo idioma
+function updateMapPopups() {
+    if (!map) return;
+    
+    poiMarkers.forEach(item => {
+        const p = puntos.find(punto => punto.id === item.id);
+        if (p) {
+    item.marker.setPopupContent(`
+        <div style="text-align: center; padding: 12px;">
+            <b style="color: ${p.cor}; font-size: 1rem;">${t('poiNames')[p.id] || p.nome}</b>
+            <br>
+            <button onclick="showPoiDetail('${p.id}')" class="popup-view-btn" style="margin-top: 8px; padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 0.85rem;">
+                ${t('viewStory')}
+            </button>
+        </div>
+    `);
+        }
+    });
+}
+
+function renderPoiList() {
+    const poiList = document.getElementById('poiList');
+    poiList.innerHTML = '';
+   
+    puntos.forEach(p => {
+        const data = poiData[p.id][currentLanguage];
+        const isUnlocked = unlockedPois.has(p.id);
+        
+        const item = document.createElement('div');
+        item.className = 'poi-item';
+        if (nearPois.has(p.id)) {
+            item.classList.add('near-poi');
+        }
+        if (!isUnlocked) {
+            item.classList.add('locked-poi');
+        }
+       
+        item.addEventListener('click', (e) => {
+            if (!e.target.closest('.distance-badge')) {
+                if (isUnlocked) {
+                    showPoiDetail(p.id);
+                } else {
+                    const alertBox = document.getElementById('proximityAlert');
+                    document.getElementById('alertTitle').textContent = '🔒 ' + (t('poiNames')[p.id] || p.nome);
+                    document.getElementById('alertDesc').textContent = t('lockedPoiMessage');
+                    document.getElementById('alertBtnText').textContent = 'OK';
+                    const alertBtn = document.getElementById('alertBtn');
+                    alertBtn.onclick = () => {
+                        alertBox.classList.remove('show');
+                        if (alertTimeout) clearTimeout(alertTimeout);
+                    };
+                    document.getElementById('proximityAlert').classList.add('show');
+                    alertTimeout = setTimeout(() => {
+                        alertBox.classList.remove('show');
+                    }, 5000);
+                }
+    }
+});
+
+item.innerHTML = `
+            <div class="poi-icon" style="background: ${isUnlocked ? p.cor : '#475569'}" aria-hidden="true">${isUnlocked ? p.icon : '🔒'}</div>
+            <div class="poi-info">
+                <h3>${isUnlocked ? data.title : (t('poiNames')[p.id] || p.nome)}</h3>
+                <p>${isUnlocked ? data.subtitle : t('lockedSubtitle')}</p>
+            </div>
+            <div class="distance-badge" data-poi-id="${p.id}"><i class="fas fa-location-dot"></i> --</div>
+        `;
+        poiList.appendChild(item);
+   });
+
+    document.querySelectorAll('.distance-badge').forEach(badge => {
+        badge.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const poiId = badge.dataset.poiId;
+            centerOnPoi(poiId);
+        });
+    });
+}
+
+function initMap() {
+            if (map) return;
+           
+            const centro = [43.4085, -8.1710];
+           
+            map = L.map('realMap', {
+    zoomControl: false,
+    fadeAnimation: true,
+    attributionControl: false
+}).setView(centro, 17);
+           
+            L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+    maxZoom: 22,
+    minZoom: 14
+}).addTo(map);
+           
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+puntos.forEach(p => {
+    const marker = L.marker(p.coords, {
+        icon: L.divIcon({
+            className: 'custom-marker',
+            html: `<div style="background: ${p.cor}; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; border: 3px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.3); text-shadow: 0 2px 4px rgba(0,0,0,0.5);">${p.icon}</div>`,
+            iconSize: [44, 44],
+            iconAnchor: [22, 22]
+        })
+    }).addTo(map);
+               
+marker.bindPopup(`
+    <div style="text-align: center; padding: 12px;">
+        <b style="color: ${p.cor}; font-size: 1rem;">${t('poiNames')[p.id] || p.nome}</b>
+        <br>
+        <button onclick="showPoiDetail('${p.id}')" class="popup-view-btn" style="margin-top: 8px; padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 0.85rem;">
+            ${t('viewStory')}
+        </button>
+    </div>
+`);
+               
+                poiMarkers.push({ id: p.id, marker, coords: p.coords });
+            });
+           
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(pos => {
+                    const userCoords = [pos.coords.latitude, pos.coords.longitude];
+                    userCoordsActual = userCoords;
+                   
+                    if (!userMarker) {
+    // Crear el marcador la primera vez
+    userMarker = L.marker(userCoords, {
+        icon: L.divIcon({
+            className: 'user-location',
+            html: '<div class="user-location-inner" style="background: #3b82f6; width: 18px; height: 18px; border-radius: 50%; border: 3px solid white; position: relative; z-index: 2;"></div>',
+            iconSize: [18, 18],
+            iconAnchor: [9, 9]
+        })
+    }).addTo(map);
+} else {
+    // Mover suavemente el marcador existente
+    userMarker.setLatLng(userCoords);
+}
+
+// Seguimiento automático si está activado
+if (isFollowingUser) {
+    map.panTo(userCoords, { animate: true, duration: 0.8, easeLinearity: 0.25 });
+}
+
+checkProximity(userCoords);
+updateDistances(userCoords);
+updateDirectionIndicator(userCoords);
+   
+}, error => {
+    console.log('Erro de geolocalización:', error);
+}, {
+    enableHighAccuracy: true,
+    maximumAge: 0,
+    timeout: 27000
+});
+            }
+
+                document.getElementById('centerLocationBtn').addEventListener('click', toggleFollowUser);
+    
+    // Actualizar indicador al mover el mapa y desactivar seguimiento si es manual
+map.on('move', () => {
+    if (userCoordsActual) {
+        updateDirectionIndicator(userCoordsActual);
+    }
+});
+
+// Desactivar seguimiento cuando el usuario arrastra el mapa
+map.on('dragstart', () => {
+    if (isFollowingUser) {
+        isFollowingUser = false;
+        const btn = document.getElementById('centerLocationBtn');
+        btn.style.transition = 'none';
+        btn.style.color = '';
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.boxShadow = '';
+        void btn.offsetWidth;
+        btn.style.transition = '';
+    }
+});
+setupDirectionClick();
+}
+
+        function checkProximity(userCoords) {
+            const DISTANCIA_LIMITE = 50;
+            // Patrones de vibración para cada punto
+const vibPatterns = {
+    p1: [300],                    // río: vibración larga y fluida
+    p2: [80, 60, 80, 60, 80],    // donas: misterioso
+    p3: [150, 50, 150],          // pasais: oleaje
+    p4: [100, 50, 100],          // puente: pasos del demo
+    p5: [200, 30, 200, 30, 200], // sal: olas del mar
+    p6: [100, 80, 100, 80, 300], // serea: misterioso y largo
+    p9: [200, 100, 200],          // francesita: triste y suave
+    p7: [40, 30, 40, 30, 40],    // castillo: cadenas, corto y seco
+    p8: [500]                     // Roxín Roxal: vibración larga y épica
+};
+            const newNearPois = new Set();
+           
+            puntos.forEach(p => {
+                const distancia = calcularDistancia(userCoords, p.coords);
+               
+                if (distancia <= DISTANCIA_LIMITE) {
+                    newNearPois.add(p.id);
+                   
+                    if (!nearPois.has(p.id) && lastAlertedPoi !== p.id) {
+                    // Desbloquear leyenda al estar cerca
+if (!unlockedPois.has(p.id)) {
+    unlockedPois.add(p.id);
+    localStorage.setItem('unlockedPois', JSON.stringify([...unlockedPois]));
+}
+                        mostrarAlerta(p);
+// Activar vibración personalizada
+if (navigator.vibrate && vibPatterns[p.id]) {
+    navigator.vibrate(vibPatterns[p.id]);
+}
+lastAlertedPoi = p.id;
+                       
+                        setTimeout(() => {
+                            if (lastAlertedPoi === p.id) lastAlertedPoi = null;
+                        }, 120000);
+                    }
+                }
+            });
+           
+            nearPois = newNearPois;
+            actualizarListaCercanos();
+        }
+       
+        function actualizarListaCercanos() {
+            const poiItems = document.querySelectorAll('.poi-item');
+           
+            puntos.forEach((p, index) => {
+                if (poiItems[index]) {
+                    if (nearPois.has(p.id)) {
+                        poiItems[index].classList.add('near-poi');
+                    } else {
+                        poiItems[index].classList.remove('near-poi');
+                    }
+                }
+            });
+        }
+
+        function calcularDistancia(coords1, coords2) {
+            const R = 6371e3;
+            const φ1 = coords1[0] * Math.PI/180;
+            const φ2 = coords2[0] * Math.PI/180;
+            const Δφ = (coords2[0] - coords1[0]) * Math.PI/180;
+            const Δλ = (coords2[1] - coords1[1]) * Math.PI/180;
+
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                    Math.cos(φ1) * Math.cos(φ2) *
+                    Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return R * c;
+        }
+
+        function updateDistances(userCoords) {
+            const poiItems = document.querySelectorAll('.poi-item');
+           
+            puntos.forEach((p, index) => {
+                if (poiItems[index]) {
+                    const distancia = calcularDistancia(userCoords, p.coords);
+                    const badge = poiItems[index].querySelector('.distance-badge');
+                    if (badge) {
+                        if (distancia < 1000) {
+                            badge.innerHTML = `<i class="fas fa-location-dot" aria-hidden="true"></i> ${Math.round(distancia)}m`;
+                        } else {
+                            badge.innerHTML = `<i class="fas fa-location-dot" aria-hidden="true"></i> ${(distancia/1000).toFixed(1)}km`;
+                        }
+                    }
+                }
+            });
+        }
+
+        function mostrarAlerta(punto) {
+    if (alertTimeout) clearTimeout(alertTimeout);
+   
+    const data = poiData[punto.id][currentLanguage];
+    document.getElementById('alertTitle').textContent = `📍 ${data.title}`;
+    document.getElementById('alertDesc').textContent = t('lessThan50m');
+   
+    const alertBtn = document.getElementById('alertBtn');
+    alertBtn.onclick = () => {
+        showPoiDetail(punto.id);
+        document.getElementById('proximityAlert').classList.remove('show');
+        if (alertTimeout) clearTimeout(alertTimeout);
+    };
+   
+    const alertBox = document.getElementById('proximityAlert');
+    
+    // Arrastre libre con imán arriba/abajo para TODOS los puntos
+alertBox.classList.add('draggable-alert');
+alertBox.style.top = 'auto';
+alertBox.style.bottom = '24px';
+alertBox.dataset.position = 'bottom';
+
+let startY = 0;
+let startTop = 0;
+let isDragging = false;
+
+alertBox.ontouchstart = function(e) {
+    if (e.target.closest('.alert-close') || e.target.closest('.alert-btn')) return;
+    startY = e.touches[0].clientY;
+    const rect = alertBox.getBoundingClientRect();
+    startTop = rect.top;
+    isDragging = true;
+    e.preventDefault();
+    alertBox.style.transition = 'none';
+    alertBox.style.bottom = 'auto';
+    alertBox.style.top = startTop + 'px';
+};
+
+alertBox.ontouchmove = function(e) {
+    if (!isDragging) return;
+    if (e.target.closest('.alert-close') || e.target.closest('.alert-btn')) return;
+    e.preventDefault();
+    
+    const deltaY = e.touches[0].clientY - startY;
+    let newTop = startTop + deltaY;
+    
+    const maxTop = window.innerHeight - alertBox.offsetHeight - 16;
+    if (newTop < 16) newTop = 16;
+    if (newTop > maxTop) newTop = maxTop;
+    
+    alertBox.style.top = newTop + 'px';
+    alertBox.style.bottom = 'auto';
+};
+
+alertBox.ontouchend = function(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    if (e.target.closest('.alert-close') || e.target.closest('.alert-btn')) return;
+    e.preventDefault();
+    
+    const rect = alertBox.getBoundingClientRect();
+    const midScreen = window.innerHeight / 2;
+    const alertMiddle = rect.top + rect.height / 2;
+    
+    alertBox.style.transition = 'top 0.5s cubic-bezier(0.22, 0.61, 0.36, 1)';
+    
+    if (alertMiddle < midScreen) {
+        alertBox.style.top = '24px';
+        alertBox.dataset.position = 'top';
+    } else {
+        const maxTop = window.innerHeight - alertBox.offsetHeight - 24;
+        alertBox.style.top = maxTop + 'px';
+        alertBox.dataset.position = 'bottom';
+    }
+    alertBox.style.bottom = 'auto';
+};
+   
+    alertBox.classList.add('show');
+    
+    // Cerrar automáticamente después de 1 minuto
+    alertTimeout = setTimeout(() => {
+        alertBox.classList.remove('show');
+    }, 60000);
+}
+
+        function renderPoiDetail(poiId) {
+    const data = poiData[poiId][currentLanguage];
+    const punto = puntos.find(p => p.id === poiId);
+   
+    let detailTitle = data.title;
+    if ((currentLanguage === 'es' || currentLanguage === 'gl' || currentLanguage === 'fr' || currentLanguage === 'en') && data.fullTitle) {
+        detailTitle = data.fullTitle;
+    }
+    
+let subtitleText = data.subtitle;
+   
+    const container = document.getElementById('poiDetailContainer');
+    container.innerHTML = `
+        <h2 class="poi-title">${detailTitle}</h2>
+<p class="poi-subtitle">${subtitleText}</p>
+
+<div class="media-tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'text')"><i class="fas fa-book"></i> ${t('read')}</button>
+            <button class="tab-btn" onclick="switchTab(event, 'audio')"><i class="fas fa-headphones"></i> ${t('listen')}</button>
+            <button class="tab-btn" onclick="switchTab(event, 'video')"><i class="fas fa-hands"></i> ${t('sign')}</button>
+        </div>
+       
+        <div id="tabText" class="tab-content active">
+    <div class="story-text" id="storyTextContent">${data.story}</div>
+</div>
+       
+        <div id="tabAudio" class="tab-content">
+            <div class="audio-player">
+                <div class="narrator-info">
+                    <div class="narrator-avatar" style="background: ${punto.cor}">${punto.icon}</div>
+                    <div>
+                        <strong>🎙️ ${data.audioNarrator}</strong>
+                        <p>${t('recordedVoice')}</p>
+                    </div>
+                </div>
+                <audio controls preload="metadata">
+                    <source src="${data.audioUrl}" type="audio/mpeg">
+                    O teu navegador non soporta audio.
+                </audio>
+                <p style="margin-top: 15px; font-size: 0.85rem; color: #94a3b8;">
+                    ${poiId === 'p1' ? t('narratedLegend') : t('pendingAudio')}
+                </p>
+            </div>
+        </div>
+       
+        <div id="tabVideo" class="tab-content">
+            <span class="sign-language-badge"><i class="fas fa-hands"></i> ${t('sign')}</span>
+           
+            <div style="background: #000; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                <video
+                    controls
+                    controlslist="nodownload"
+                    style="width: 100%; height: auto; display: block; aspect-ratio: 16/9; background: #000;">
+                    <source src="${data.videoUrl}" type="video/mp4">
+                    O teu navegador non soporta vídeos.
+                </video>
+            </div>
+           
+            <p style="margin-top: 15px; font-size: 0.85rem; color: #94a3b8; text-align: center;">
+                <i class="fas fa-expand"></i> ${t('fullscreenHint')}
+            </p>
+        </div>
+    `;
+    // Actualizar el enlace del botón de Google Maps con las coordenadas del punto
+const gmapsBtn = document.getElementById('gmapsDetailBtn');
+if (gmapsBtn && punto) {
+    const lat = punto.coords[0];
+    const lng = punto.coords[1];
+    gmapsBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+}
+// Asegurar que el botón de copiar se vea al entrar (pestaña activa: texto)
+const copyHeaderBtn = document.getElementById('copyStoryHeaderBtn');
+if (copyHeaderBtn) copyHeaderBtn.style.display = '';
+}
+       
+        function updatePoiDetailLanguage() {
+            if (currentPoi) {
+                renderPoiDetail(currentPoi);
+            }
+        }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const savedLang = localStorage.getItem('preferredLanguage');
+    if (savedLang) {
+        currentLanguage = savedLang;
+        updateInterfaceTexts();
+        showMapScreen();
+        updateUILanguage();
+    } else {
+        updateInterfaceTexts();
+    }
+           
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const darkModeToggleDetail = document.getElementById('darkModeToggleDetail');
+            const body = document.body;
+           
+            const savedMode = localStorage.getItem('darkMode');
+            if (savedMode === 'light') {
+                body.classList.add('light-mode');
+                if (darkModeToggle) darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                if (darkModeToggleDetail) darkModeToggleDetail.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+           
+            function toggleDarkMode() {
+    body.classList.toggle('light-mode');
+   
+    if (body.classList.contains('light-mode')) {
+        localStorage.setItem('darkMode', 'light');
+        if (darkModeToggle) darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        if (darkModeToggleDetail) darkModeToggleDetail.innerHTML = '<i class="fas fa-sun"></i>';
+    } else {
+        localStorage.setItem('darkMode', 'dark');
+        if (darkModeToggle) darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        if (darkModeToggleDetail) darkModeToggleDetail.innerHTML = '<i class="fas fa-moon"></i>';
+    }
+    
+    // Forzar actualización de la lista de puntos cercanos
+    setTimeout(() => {
+        actualizarListaCercanos();
+    }, 100);
+}
+           
+            if (darkModeToggle) darkModeToggle.addEventListener('click', toggleDarkMode);
+            if (darkModeToggleDetail) darkModeToggleDetail.addEventListener('click', toggleDarkMode);
+            document.getElementById('copyStoryHeaderBtn').addEventListener('click', copyStoryToClipboard);
+           
+           function copyStoryToClipboard() {
+    const storyElement = document.getElementById('storyTextContent');
+    if (!storyElement) return;
+    
+    const text = storyElement.innerText || storyElement.textContent;
+    const btn = document.getElementById('copyStoryHeaderBtn'); // ← ahora usamos el botón del header
+    if (!btn) return;
+
+    const originalHtml = btn.innerHTML; // guardamos el icono original
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            btn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i>';
+            setTimeout(() => { btn.innerHTML = originalHtml; }, 2000);
+        }).catch(() => {
+            fallbackCopy(text, btn, originalHtml);
+        });
+    } else {
+        fallbackCopy(text, btn, originalHtml);
+    }
+}
+
+function fallbackCopy(text, btn, originalHtml) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+        document.execCommand('copy');
+        btn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i>';
+        setTimeout(() => { btn.innerHTML = originalHtml; }, 2000);
+    } catch (e) {
+        console.error('Error al copiar:', e);
+    }
+    document.body.removeChild(textarea);
+}
+           
+            document.getElementById('alertClose').addEventListener('click', () => {
+                document.getElementById('proximityAlert').classList.remove('show');
+            });
+        });
+    </script>
+</body>
+</html>
