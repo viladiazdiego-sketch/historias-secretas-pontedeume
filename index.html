@@ -1498,9 +1498,9 @@ const i18n = {
     p3: 'Os pasais do Eume',
     p4: 'A Ponte de Pontedeume',
     p5: 'As augas salgadas',
-    p6: 'A Serea das Mirandas',
+    p6: 'A serea das Mirandas',
     p9: 'A francesiña afogada',
-    p7: 'O castelo da fame',
+    p7: 'O Castelo da fame',
     p8: 'Roxín Roxal'
 },
         back: 'Volver',
@@ -1566,11 +1566,11 @@ lockedSubtitle: '🔒 Leyenda bloqueada'
     en: {
     poiNames: {
     p1: "Eume's source",
-    p2: 'The three transparent ladies',
+    p2: 'The three transparent maidens',
     p3: 'The passageways of the Eume',
-    p4: 'The bridge of Pontedeume',
+    p4: 'The bridge in Pontedeume',
     p5: 'The salty waters',
-    p6: 'The Mermaid of Las Mirandas',
+    p6: 'The mermaid from the Mirandas',
     p9: 'The little French girl who drowned in Pontedeume',
     p7: 'The castle of hunger',
     p8: 'Roxín Roxal'
@@ -1602,12 +1602,12 @@ lockedSubtitle: '🔒 Locked legend'
     fr: {
     poiNames: {
     p1: 'La naissance de l\'Eume',
-    p2: 'Les trois dames transparentes',
-    p3: 'Les passages de l\'Eume',
+    p2: 'Les trois demoisselles transparentes',
+    p3: 'Les passerelles de l\'Eume',
     p4: 'Le pont de Pontedeume',
     p5: 'Les eaux salées',
-    p6: 'La Sirène de Las Mirandas',
-    p9: 'La petite Française qui s\'est noyée à Pontedeume',
+    p6: 'La sirène des Mirandas',
+    p9: 'La Française noyée',
     p7: 'Le château de la faim',
     p8: 'Roxín Roxal'
 },
@@ -1655,9 +1655,9 @@ let isFollowingUser = false; // Modo seguimiento
     { id: 'p3', nome: 'Os pasais do Eume', coords: [43.407694, -8.170444], icon: '🚶‍♂️', cor: '#3b82f6' },
     { id: 'p4', nome: 'A Ponte de Pontedeume', coords: [43.407944, -8.171000], icon: '🌉', cor: '#8b5cf6' },
     { id: 'p5', nome: 'As augas salgadas', coords: [43.408667, -8.172694], icon: '🧂', cor: '#ef4444' },
-    { id: 'p6', nome: 'A Serea das Mirandas', coords: [43.411528, -8.174527], icon: '🧜‍♀️', cor: '#ec4899' },
-    { id: 'p9', nome: 'A francesiña afogada', coords: [43.411320, -8.174277], icon: '💃', cor: '#f97316' },
-    { id: 'p7', nome: 'O castelo da fame', coords: [43.407583, -8.172083], icon: '🏰', cor: '#f43f5e' },
+    { id: 'p6', nome: 'A serea das Mirandas', coords: [43.411528, -8.174527], icon: '🧜‍♀️', cor: '#ec4899' },
+    { id: 'p9', nome: 'A francesiña afogada', coords: [43.411320, -8.174277], icon: '🏊‍♀️', cor: '#f97316' },
+    { id: 'p7', nome: 'O Castelo da fame', coords: [43.407583, -8.172083], icon: '🏰', cor: '#f43f5e' },
     { id: 'p8', nome: 'Roxín Roxal', coords: [43.406722, -8.170917], icon: '🗡️', cor: '#a855f7' }
 ];
        
@@ -1681,7 +1681,7 @@ if (!BLOQUEO_ACTIVO) {
                               p.id === 'p3' ? 'Os pasais que unían as dúas orelas do Eume na súa desembocadura' :
                               p.id === 'p4' ? 'A Ponte de Pontedeume' :
                               p.id === 'p5' ? 'De como foron salgadas as augas do esteiro do Eume, do porto de Pontedeume e mais da ría de Ares' :
-                              p.id === 'p6' ? 'A Serea das Mirandas' :
+                              p.id === 'p6' ? 'A serea das Mirandas' :
 p.id === 'p9' ? 'A francesiña que afogou en Pontedeume' :
 p.id === 'p7' ? 'O Castelo da fame' :
                               'Roxín Roxal',
@@ -1979,26 +1979,40 @@ Pocos días después, en el mismo puente, apareció muerto el jabalí, con la da
                 },
                 en: {
     title: p.id === 'p1' ? "Eume's source" :
-           p.id === 'p2' ? 'The three transparent ladies' :
+           p.id === 'p2' ? 'The three transparent maidens' :
            p.id === 'p3' ? 'The passageways of the Eume' :
-           p.id === 'p4' ? 'The bridge of Pontedeume' :
+           p.id === 'p4' ? 'The bridge in Pontedeume' :
            p.id === 'p5' ? 'The salty waters' :
-           p.id === 'p6' ? 'The Mermaid of Las Mirandas' :
+           p.id === 'p6' ? 'The mermaid from the Mirandas' :
 p.id === 'p9' ? 'The drowned French girl' :
 p.id === 'p7' ? 'The castle of hunger' :
 'Roxín Roxal',
     fullTitle: p.id === 'p1' ? "Eume's source" :
               p.id === 'p2' ? 'The three transparent maidens and the ancient Celtic flooded city' :
-              p.id === 'p3' ? 'The passageways that connected the two banks of the Eume at its mouth' :
-              p.id === 'p4' ? 'The bridge of Pontedeume' :
-              p.id === 'p5' ? 'How the waters of the Eume estuary, the port of Pontedeume and the Ares estuary became salty' :
-              p.id === 'p6' ? 'The Mermaid of Las Mirandas' :
+              p.id === 'p3' ? 'The passages that joined the two banks of the Eume in its mouth' :
+              p.id === 'p4' ? 'The bridge in Pontedeume' :
+              p.id === 'p5' ? 'The story of how the waters in the mouth of the Eume, the port in Pontedeume and the Ares ría became salty' :
+              p.id === 'p6' ? 'The mermaid from the Mirandas' :
 p.id === 'p9' ? 'The little French girl who drowned in Pontedeume' :
 p.id === 'p7' ? 'The castle of hunger' :
 'Roxín Roxal',
               subtitle: p.id === 'p1' ? 'Race to the sea' : p.id === 'p2' ? 'The flooding spell' : p.id === 'p3' ? 'Watched by the devil' : p.id === 'p4' ? "The devil's bridge" : p.id === 'p5' ? 'Love and salt in the estuary' : p.id === 'p6' ? 'The love between the mermaid and the nobleman' : p.id === 'p9' ? 'The lost earring' : p.id === 'p7' ? 'Love in chains' : 'The pirate Roxín',
                   story: (() => {
-                        if (p.id === 'p1') {
+                                                if (p.id === 'p2') {
+                            return `A really long time ago, in the mouth of the Eume, at the foot of Mount Breamo, our ancestors built a village that became richer and richer every day, thanks to its abundant agriculture and farming, and the fishing in the nearby area.
+
+One day, three beautiful transparent maidens arrived at the ancient and prosperous village. They had blonde hair which they combed with three precious and magical golden combs, and they enchanted several local men. They were supernatural beings that seduced the most handsome men in the village with their spells.
+
+The three transparent maidens only showed their beauty after sunset, and the men went to their palace every night and there, orgies and bacchanals took place. There were usually fights among them and the prosperity of the village started to be at risk because the permanent party is an enemy of the work and the defense of the town.
+
+The members of the Assembly of the Elderly were really worried, so they spoke to the druid who told them that the women were enchanted fairies that would only bring destruction. He asked them to gather the people under the protection of the ringforts and stay there for three days. Then, he went up to the top of Mount Breamo and cast a spell. Soon after he also sought refuge in the ringfort and suddenly it started to rain heavily for three days.
+
+The city was flooded and the young men did not pay attention to the warnings of the Assembly of the Elderly so they drowned. Only those who stayed in the ringfort were able to save their lives.
+
+The legends say that even during the Middle Ages these people buried under water were still alive and that, on special days, the bells were tolled and the roosters could be heard; the inhabitants had turned into very large and black fish. The flooded cities belonged to the world of the dead.
+
+Nothing more was heard about the three maidens although there are people who say that they turned into mermaids and abandoned our "ría": one lives in the depths of the sea near the Macuca; another one in Mourón; and the third in the Mirandas (we'll talk about this one later).`;
+                        } else if (p.id === 'p1') {
                             return `A legend says that a long time ago, three springs were born in the Xistral Mountains and they felt the call of the sea. The three of them wanted to get to the sea as soon as possible because they would receive a great treasure, so they decided to set off together in order to share it. Thus, they started their journey together towards the sea, becoming the rivers Sor, Landro and Eume.
 
 When they had already gone down for a long while and when the night was about to fall, the three rivers felt they were getting really tired and agreed on taking a short nap before continuing their journey. They promised that the first one to wake up would wake the others to continue their journey together towards the sea.
@@ -2008,6 +2022,46 @@ However, Antubel, the Celtic goddess of the sleeping waters, the shadows and the
 The next morning, when the Eume river woke up and saw that the other rivers had deceived it, he asked Endovélico (the ancient god of fire and light) for help and the latter helped it arrive as soon as possible. The river Eume, furious, followed immediately Endovélico's point of light towards the Artabrian gulf to avoid coinciding in the Cantabrian Sea with its disloyal rivals. He travelled quickly and tirelessly for 80km, jumping over everything he encountered.
 
 The Eume was the first of the three to reach the sea, in Pontedeume, leaving behind beautiful landscapes such as "FRAGAS DO EUME" and receiving a great amount of fish and other extraordinary creatures as a reward. Among these creatures, we can highlight the mermaids, who are also protagonists of some of the stories in this route.`;
+    } else if (p.id === 'p3') {
+        return `The Roman findings discovered in Zopazos and other nearby places seem to indicate that during Celtic times there was already a kind of passage to communicate, with low tide, the numerous ringforts from one shore of the ría to the other.
+
+A legend says that our ancestors, in ancient times, had stuck some stone passages covered with wood, to be able to cross on foot during low tide from one shore of the mouth of the Eume to the other. Crossing with high tide could only be done with a small boat.
+
+But as a consequence of the deterioration of the stones and the wood, the frequent changes of the tide or the weight of the things they carried, the ancient inhabitants of the Eume banks frequently slipped, and after a clumsy dance trying to keep balance, they fell to the sea.
+
+Since many couldn't swim and were taken away by the current, the Devil lay in wait to offer them his always self-interested help. Some lost their lives because they refused the satanic help, but there were many who exchanged their souls to get out of this dangerous situation (this is what happened to Minla some time later).`;
+} else if (p.id === 'p4') {
+    return `In the last quarter of the 14th century, the beautiful Minla, daughter of the first lord of Pontedeume, Fernán Pérez de Andrade, lived in the palace her parents had in the village. Every evening, after sunset, trying not to be seen, she went to the river bank to wait for Ledán, a strong and handsome farmer from Cabanas, who had a sailor friend that helped him cross by boat from the other bank of the river to be with his beloved one.
+
+One evening there was a sudden storm and the waters in the river were really rough. The sailor didn't want to help him cross because he thought it was too dangerous, and Ledán, an expert swimmer, knowing that in the other bank Minla was waiting for him, decided to cross towards Pontedeume swimming.
+
+However, despite his skills, he drowned in Cabanas. Minla, from Pontedeume, saw how her beloved one died in front of her very eyes and she could do nothing to help him. At this same moment, the devil, always considerate to the others' disgrace, approached the young lady and offered some help:
+
+- If you give me your soul, you'll have the bridge finished by dawn.
+
+The young lady, desperate to give Ledán one last kiss, accepted with the condition that the bridge needed to be finished before the black rooster in the Andrade house had sung. The devil worked all night and managed to build almost seventy one stone arches. At dawn, the Andrades' rooster sang and there was still one arch to be finished. But since the bridge was almost complete, Minla was able to cross and say goodbye to Ledán just by jumping above the unfinished arch; this way, she saved her soul and the devil was deceived.
+
+Pontedeume's lord, when being informed about all this by his daughter, decided to finish the last arch in the bridge, which eventually joined the town with the other villages on the other bank of the river.
+
+It is sometimes claimed, with subtle irony, that the name Pontedeume does not mean "bridge of the Eume" but "bridge of the devil".`;
+} else if (p.id === 'p5') {
+    return `The King Alfonso X the Wise granted Pontedeume a privilege in 1270: he allowed its inhabitants to fish freely at the sea without making them pay any taxation for what they had caught. Apart from his own protection, he also granted them one day a month to prepare the market and made them know everyone attending would be safe.
+
+This boosted fishing and trade in Pontedeume, but it also brought extreme perils like the attacks of hostile ships or even pirates (like Roxín Roxal, about whom we'll talk later) entering the ría through the Artabrian gulf.
+
+One of the most adventurous men in the village bought a ship and decided to try his luck outside Pontedeume. He promised his girlfriend - the most beautiful girl in the village - that he would soon return with money and they would get married, as they had always dreamt.
+
+During his trip, he arrived at the Sal island and, when kissing its thick and white sand, he noticed it was very tasty. So he filled his ship with that salty sand and bought it around the world, becoming really rich with his business.
+
+When he returned to Pontedeume, he had a luxurious house built and married his girlfriend. But soon after the wedding, the man left again in his ship to continue his commercial activities, while the wife stayed in the luxurious house they had built.
+
+Back then, the person in charge of the village was a tyrant who lived in a defensive fortress located where nowadays we find the Andrade's turret. He was really jealous of that man, who had become the wealthiest of the village and the husband of the most beautiful woman.
+
+For this reason, one night, taking advantage of the husband's absence, he decided to kidnap the wife and lock her up in his tower, where he tried to abuse her. But that night the moon gave way to a heavy storm which caused ferocious waves that demolished the room in the fortress where the nobleman was, causing his death.
+
+When the man returned a month later and he was informed of how his dear wife had been freed, as a reward, he poured all the salt that was left in his island in the waters of the mouth of the river, the port in Pontedeume and the mouth of the Ares ría - since they were still fresh - for them to have a better flavour. That's why they are salty today.
+
+In this same way, he wanted to stay in the village forever, to take care of his wife personally and enjoy being with her.`;
                         } else if (p.id === 'p9') {
                             return `According to ancient legends, many flooded cities remained buried under the sand, and the people that dared to enter their waters were at risk of being swallowed in order to increase the number of their inhabitants. Rumour has it in Pontedeume that something similar happened to the little French girl.
 
@@ -2032,6 +2086,46 @@ Some nights of sea luminescence in August, a lot of young people go to the beach
 The nobleman could find no rest without her and asked her to go and live with him. So did the mermaid of the Mirandas, and he removed the scales in her tail one by one with loving care, patience and delicacy until two beautiful and long female legs could be seen. They fell in love and got married. They had children and lived happily ever after.
 
 But when the husband died, the mermaid left her grown-up children and went back to live in the salty waters of the Ares ría, in the beautiful palace she had under the sea, near the Mirandas Islands. She was never seen again but, during certain nights of sea luminescence, some old sailors say that they have heard the most beautiful and sweet love song coming from the ocean floor, sung by the voice of the miserable mermaid.`;
+} else if (p.id === 'p7') {
+    return `There is a story in Pontedeume that says that, being lord Fernán Pérez de Andrade - or maybe Nuño Freire de Andrade - the governor of the castle, Pero López, famous for his cruelty, fell in love with a young woman called Elvira, a lady in waiting of the lady of Andrade, whom she served in the turret in Pontedeume. She rejected him because she already had a lover, Mauro, don Fernán's (or Nuño's) favourite page-boy. The rumours even said that the boy could be his son.
+
+The governor couldn't stand Elvira choosing Mauro over him and ordered his only trust-worthy servant to kidnap the lovers and lock them up in a room in the tower of the castle of Andrade no one else could access.
+
+The lords of Pontedeume, alarmed by their disappearance, spent several days looking for them in the village, the parishes, the forests in the Fragas del Eume and the forests of Breamo… but all their efforts ended up in failure.
+
+The governor convinced don Fernán - or don Nuño - that he had information that let him claim that the lovers had eloped together. And even though they sometimes went to the rooftop of the turret with the hope they would come back, they believed Pero López's story and accepted that they would never see them again.
+
+The two lovers spent many months chained in that dark and solitary cell where they had been locked, and the governor's servant, who was mute, took them food every day. The only comfort for the lovers was that they were together.
+
+One day, when the loyal servant brought them food, brave Mauro took advantage of the fact that he had bent to leave the plate on the floor and hit him so hard that he was mortally wounded. He was able to get his keys and free himself, but while he was about to unchain Elvira, the servant ran away with the cell keys, leaving them locked up.
+
+The servant told his master everything that had happened using signs and, when he finished the story, he died. The governor, in revenge, decided to let the lovers die of starvation. After some months, in his deathbed, he confessed to the lord of Pontedeume what he had plotted against Mauro and Elvira and, when they arrived at the cell in the castle of Andrade, they found their corpses hugging.`;
+} else if (p.id === 'p8') {
+    return `After King Alfonso X the Wiser had granted in 1270 the privilege that boosted the settlement and creation of Pontedeume, the village got fortified in order to face the attacks of invasive ships or even pirates, who arrived to the ría through the Artabrian gulf. This was also the reason why the fortress of the castle of Andrade (in Nogueirosa) was built.
+
+During the times of Fernán Pérez de Andrade, some pirates arrived at Pontedeume pretending to loot the village. One of them, red-haired and with skin white as the snow, stole as well the heart of a maid who lived in the palace of the Andrade and he had a passionate love affair with her.
+
+However, happiness did not last since a few days later the pirate left with his fellows through the Ares ría, and the maid gave birth nine months later to a beautiful red-haired baby with white skin like his father's, of whom they never knew anything else.
+
+The maid, being kind and loyal to the Andrade lords, continued serving in their palace. Her son, who she named Roxín Roxal, inherited his father's strength and courage and his mother's loyalty. When he turned 15, he was called to serve as a page-boy in the castle on top of Leboreiro rock, where he established his home.
+
+At that time, in the first quarter of the 15th century, there was another lord in Pontedeume, Don Nuño Freire de Andrade, nicknamed "the evil one" by his vassals, who, tired of his abuses, organized the first Irmandiño revolt. Don Nuño had two sons and lived with his only daughter, Tareixa, in his palace in Pontedeume.
+
+Tareixa was a very cheerful and beautiful girl. She loved going for walks, riding a horse or sailing through the Eume river and its forest, Breamo Mountain or the beaches in the area. But, being also a little bit irresponsible and rebellious, his father asked Roxín Roxal to take care of her and protect her since the boy was considered to be very intelligent and brave, and also worthy of his trust and sympathy.
+
+The page-boy went with Tareixa wherever she went to and, little by little, a friendship was born between them which later on gave way to love. Roxín Roxal, who was always cheerful and happy, started to feel sad and melancholic when Tareixa was not around; but due to the respect he had for Don Nuño, he couldn't dare to confess his love for her.
+
+However, the girl noticed the melancholy in his eyes and understood he was crazy in love with her so she confessed that she loved him in return. But their love story didn't last long because, when the lord in Pontedeume discovered it, he forbade the boy to see his daughter again and expelled him to the surrounding area of the Andrade castle.
+
+Don Nuño, despite feeling affection for the boy, could not stand Roxín Roxal marrying his daughter since the boy came from a humble background. He had already arranged the marriage between his daughter and Enrique de Osorio, a man similar in social position to the Andrades.
+
+Roxín Roxal obeyed his lord's orders diligently and he decided to compensate the boy for his loyalty with a valuable golden dagger with the initial R.R. engraved.
+
+Time went by, and Enrique and Tareixa got married. Nuño continued ruling the village and Tareixa never knew anything else from Roxín Roxal.
+
+During that time, a terrible boar - the largest ever seen - started to attack the lands of the Andrade. Tired of the peasants' complaints, Nuño organized a hunt, led by his son-in-law Enrique and his daughter Tareixa. They cornered the boar, which was already wounded and furious, and it went down the mountain until it reached the bridge, where they were waiting for it. Enrique de Osorio, having it at range, threw an arrow and the animal, enraged, attacked Tareixa with cruelty, wounding her mortally. His coward husband, instead of defending her, jumped into the river to save his own life.
+
+A few days later, in that same bridge, the dead body of the boar appeared, with the dagger that Nuño had given Roxín Roxal in its throat. Only the lord of Andrade knew that it could belong to no one else. In that same moment, he realised that forbidding the marriage between his daughter and his vassal had been a huge mistake, since the latter, even though he was a commoner, would have undoubtedly defended his daughter better than the noble don Enrique.`;
                         } else {
                             return 'Story in English to be written by 9th grade students.';
                         }
@@ -2042,20 +2136,20 @@ But when the husband died, the mermaid left her grown-up children and went back 
 },
                 fr: {
                     title: p.id === 'p1' ? 'La naissance de l\'Eume' :
-                           p.id === 'p2' ? 'Les trois dames transparentes' :
-                           p.id === 'p3' ? 'Les passages de l\'Eume' :
+                           p.id === 'p2' ? 'Les trois demoisselles transparentes' :
+                           p.id === 'p3' ? 'Les passerelles de l\'Eume' :
                            p.id === 'p4' ? 'Le pont de Pontedeume' :
                            p.id === 'p5' ? 'Les eaux salées' :
-                           p.id === 'p6' ? 'La Sirène de Las Mirandas' :
+                           p.id === 'p6' ? 'La sirène des Mirandas' :
 p.id === 'p9' ? 'La Française noyée' :
 p.id === 'p7' ? 'Le château de la faim' :
 'Roxín Roxal',
                     fullTitle: p.id === 'p1' ? 'La naissance de la rivière Eume' :
-                              p.id === 'p2' ? 'Les trois demoiselles transparentes et l\'antique village celtique soulagé' :
+                              p.id === 'p2' ? 'Les trois demoisselles transparentes et l\'antique village celtique soulagé' :
                               p.id === 'p3' ? 'Les passerelles qui connectaient les deux bords de la rivière Eume près de son embouchure' :
                               p.id === 'p4' ? 'Le pont de Pontedeume' :
                               p.id === 'p5' ? 'Comment les eaux du port de Pontedeume et d\'Ares ont été salées' :
-                              p.id === 'p6' ? 'La Sirène de Las Mirandas' :
+                              p.id === 'p6' ? 'La sirène des Mirandas' :
 p.id === 'p9' ? 'La petite Française qui s\'est noyée à Pontedeume' :
 p.id === 'p7' ? 'Le château de la faim' :
 'Roxín Roxal',
