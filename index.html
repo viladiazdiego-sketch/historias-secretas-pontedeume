@@ -1286,6 +1286,82 @@ body.light-mode .poi-item.near-poi .distance-badge i {
     pointer-events: auto;
     touch-action: manipulation;
 }
+/* ANIMACIÓN DE DESBLOQUEO - ROMPER EL HIELO */
+@keyframes shatter {
+    0% {
+        transform: scale(1);
+        filter: grayscale(100%) brightness(0.7);
+    }
+    20% {
+        transform: scale(1.08);
+        filter: grayscale(60%) brightness(0.85);
+    }
+    50% {
+        transform: scale(0.96);
+        filter: grayscale(20%) brightness(0.95);
+    }
+    80% {
+        transform: scale(1.02);
+        filter: grayscale(0%) brightness(1);
+    }
+    100% {
+        transform: scale(1);
+        filter: grayscale(0%) brightness(1);
+    }
+}
+
+.poi-item.unlocking {
+    animation: shatter 0.6s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+    position: relative;
+    z-index: 10;
+}
+
+/* Partículas de rotura */
+.shatter-particle {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, #ffffff, #cbd5e1);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    animation: flyAway 0.6s ease-out forwards;
+    box-shadow: 0 0 4px rgba(255,255,255,0.8);
+}
+
+@keyframes flyAway {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--dx, 60px), var(--dy, -60px)) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Grietas visuales (opcional, líneas que aparecen) */
+.crack-line {
+    position: fixed;
+    width: 2px;
+    height: 30px;
+    background: linear-gradient(180deg, #ffffff, #94a3b8);
+    transform-origin: center;
+    pointer-events: none;
+    z-index: 9998;
+    animation: fadeCrack 0.4s ease-out forwards;
+}
+
+@keyframes fadeCrack {
+    0% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scaleY(0);
+    }
+}
     </style>
 </head>
 <body>
@@ -1662,7 +1738,7 @@ let isFollowingUser = false; // Modo seguimiento
 ];
        
        // 🔧 MODO EDICIÓN: Cambia false a true cuando quieras activar el bloqueo
-let BLOQUEO_ACTIVO = false;
+let BLOQUEO_ACTIVO = true;
 
 let unlockedPois = new Set(JSON.parse(localStorage.getItem('unlockedPois') || '[]'));
 
@@ -2754,6 +2830,50 @@ if (!unlockedPois.has(p.id)) {
     localStorage.setItem('unlockedPois', JSON.stringify([...unlockedPois]));
 }
                         mostrarAlerta(p);
+                        // Buscar el elemento del punto en la lista para la animación
+const poiItemsList = document.querySelectorAll('.poi-item');
+let targetItem = null;
+poiItemsList.forEach((item, idx) => {
+    if (puntos[idx] && puntos[idx].id === p.id) {
+        targetItem = item;
+    }
+});
+if (targetItem) {
+    crearEfectoDesbloqueo(targetItem, p.id);
+}
+// ACTUALIZAR EL CONTENIDO VISUAL DEL PUNTO INMEDIATAMENTE
+if (targetItem) {
+    // Obtener los datos del punto en el idioma actual
+    const dataActual = poiData[p.id][currentLanguage];
+    const iconDiv = targetItem.querySelector('.poi-icon');
+    const titleH3 = targetItem.querySelector('.poi-info h3');
+    const subtitleP = targetItem.querySelector('.poi-info p');
+    const distanceBadge = targetItem.querySelector('.distance-badge');
+    
+    // Actualizar icono y color de fondo
+    if (iconDiv) {
+        iconDiv.style.background = p.cor;
+        iconDiv.innerHTML = p.icon;
+        iconDiv.style.filter = 'none';
+    }
+    
+    // Actualizar título y subtítulo
+    if (titleH3) titleH3.textContent = dataActual.title;
+    if (subtitleP) subtitleP.textContent = dataActual.subtitle;
+    
+    // Quitar la clase locked-poi
+    targetItem.classList.remove('locked-poi');
+    
+    // Actualizar el badge de distancia (opcional, mantener su función)
+    if (distanceBadge && userCoordsActual) {
+        const distancia = calcularDistancia(userCoordsActual, p.coords);
+        if (distancia < 1000) {
+            distanceBadge.innerHTML = `<i class="fas fa-location-dot"></i> ${Math.round(distancia)}m`;
+        } else {
+            distanceBadge.innerHTML = `<i class="fas fa-location-dot"></i> ${(distancia/1000).toFixed(1)}km`;
+        }
+    }
+}
 // Activar vibración personalizada
 if (navigator.vibrate && vibPatterns[p.id]) {
     navigator.vibrate(vibPatterns[p.id]);
@@ -2901,6 +3021,70 @@ alertBox.ontouchend = function(e) {
     alertTimeout = setTimeout(() => {
         alertBox.classList.remove('show');
     }, 60000);
+}
+
+// Función para crear el efecto de "rotura" al desbloquear una leyenda
+function crearEfectoDesbloqueo(elemento, puntoId) {
+    if (!elemento) return;
+    
+    // Añadir clase de animación al elemento
+    elemento.classList.add('unlocking');
+    
+    // Obtener la posición del elemento en la pantalla
+    const rect = elemento.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Crear 30 partículas que salen volando
+    for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'shatter-particle';
+        
+        // Ángulo aleatorio (0 a 360 grados)
+        const angle = Math.random() * Math.PI * 2;
+        // Distancia aleatoria (40 a 150 píxeles)
+        const distance = 40 + Math.random() * 110;
+        
+        const dx = Math.cos(angle) * distance;
+        const dy = Math.sin(angle) * distance - 30; // hacia arriba preferentemente
+        
+        particle.style.setProperty('--dx', dx + 'px');
+        particle.style.setProperty('--dy', dy + 'px');
+        particle.style.left = (centerX + (Math.random() - 0.5) * 30) + 'px';
+        particle.style.top = (centerY + (Math.random() - 0.5) * 30) + 'px';
+        
+        // Colores de partículas según el tipo de punto
+        const punto = puntos.find(p => p.id === puntoId);
+        if (punto) {
+            particle.style.background = `radial-gradient(circle, ${punto.cor}, #ffffff)`;
+        }
+        
+        document.body.appendChild(particle);
+        
+        // Eliminar la partícula después de la animación
+        setTimeout(() => particle.remove(), 600);
+    }
+    
+    // Crear 5 líneas de grieta
+    for (let i = 0; i < 5; i++) {
+        const crack = document.createElement('div');
+        crack.className = 'crack-line';
+        crack.style.left = (centerX + (Math.random() - 0.5) * 40) + 'px';
+        crack.style.top = (centerY + (Math.random() - 0.5) * 40) + 'px';
+        crack.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(crack);
+        setTimeout(() => crack.remove(), 400);
+    }
+    
+    // Quitar la clase de animación después de que termine
+    setTimeout(() => {
+        elemento.classList.remove('unlocking');
+    }, 600);
+    
+    // Vibración personalizada para el desbloqueo
+    if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]);
+    }
 }
 
         function renderPoiDetail(poiId) {
